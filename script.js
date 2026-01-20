@@ -247,7 +247,7 @@ async function updateNavAuth() {
             });
         }
     } else {
-        navAuth.innerHTML = `<a href="${basePath}login.html" class="nav-link nav-login">Login</a>`;
+        navAuth.innerHTML = `<a href="/api/discord/login?redirect=true" class="nav-link nav-login">Login</a>`;
     }
 }
 

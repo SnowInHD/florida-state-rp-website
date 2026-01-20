@@ -24,7 +24,8 @@
       "Bash(npx dotenvx:*)",
       "Bash(ls -la \"d:\\\\Websites\\\\Florida State RP\\\\api\"\" 2>/dev/null || echo \"API directory not found \")",
       "Bash(cmd //c \"taskkill /F /PID 15472\")",
-      "Bash(firebase deploy:*)"
+      "Bash(firebase deploy:*)",
+      "Bash(git push:*)"
     ]
   }
 }
