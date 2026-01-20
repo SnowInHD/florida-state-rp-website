@@ -1,7 +1,6 @@
 {
   "name": "florida-state-rp-website",
   "version": "1.0.0",
-  "type": "module",
   "description": "Modern website for Florida State RP community with Firebase integration",
   "main": "index.html",
   "scripts": {

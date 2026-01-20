@@ -1,5 +1,5 @@
 // Vercel Serverless Function for CrashBot Analysis
-import Anthropic from '@anthropic-ai/sdk';
+const Anthropic = require('@anthropic-ai/sdk');
 
 // FiveM Knowledge Base for Claude context
 const FIVEM_CONTEXT = `You are CrashBot, an AI assistant specialized in analyzing FiveM crash logs for the Florida State RP community.
@@ -38,7 +38,7 @@ Common FiveM crash locations:
 
 Always be encouraging and let users know that resource issues will be automatically reported to the development team.`;
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
     // Set CORS headers
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
