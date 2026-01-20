@@ -56,22 +56,22 @@ let pagePermissions = {};
 let adminUsers = [];
 
 // ===================================
-// DOM Elements
+// DOM Elements (initialized in init())
 // ===================================
 
-const accessDenied = document.getElementById('accessDenied');
-const adminContent = document.getElementById('adminContent');
-const adminFooter = document.getElementById('adminFooter');
-const navButtons = document.querySelectorAll('.admin-nav-item');
-const sections = {
-    permissions: document.getElementById('sectionPermissions'),
-    roles: document.getElementById('sectionRoles'),
-    admins: document.getElementById('sectionAdmins')
+let accessDenied;
+let adminContent;
+let adminFooter;
+let navButtons;
+let sections = {
+    permissions: null,
+    roles: null,
+    admins: null
 };
 
-// Modal elements
-const editModal = document.getElementById('editPermissionModal');
-const addPageModal = document.getElementById('addPageModal');
+// Modal elements (initialized in init())
+let editModal;
+let addPageModal;
 
 // ===================================
 // Token Refresh
@@ -181,6 +181,19 @@ async function checkAdminAccess() {
 // ===================================
 
 async function init() {
+    // Initialize DOM elements
+    accessDenied = document.getElementById('accessDenied');
+    adminContent = document.getElementById('adminContent');
+    adminFooter = document.getElementById('adminFooter');
+    navButtons = document.querySelectorAll('.admin-nav-item');
+    sections = {
+        permissions: document.getElementById('sectionPermissions'),
+        roles: document.getElementById('sectionRoles'),
+        admins: document.getElementById('sectionAdmins')
+    };
+    editModal = document.getElementById('editPermissionModal');
+    addPageModal = document.getElementById('addPageModal');
+
     const hasAccess = await checkAdminAccess();
 
     if (hasAccess) {
