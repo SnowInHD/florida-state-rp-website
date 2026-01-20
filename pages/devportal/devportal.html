@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dev Portal - Florida State RP</title>
+    <link rel="stylesheet" href="../../styles.css">
+    <link rel="stylesheet" href="devportal.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar scrolled" id="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <a href="../../index.html">
+                    <img src="../../assets/images/FSRP.png" alt="Florida State RP Logo" class="logo-img">
+                </a>
+            </div>
+            <div class="nav-toggle" id="navToggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <ul class="nav-menu" id="navMenu">
+                <li class="nav-item"><a href="../../index.html" class="nav-link">Home</a></li>
+                <li class="nav-item"><a href="../../index.html#about" class="nav-link">About</a></li>
+                <li class="nav-item"><a href="../../index.html#departments" class="nav-link">Departments</a></li>
+                <li class="nav-item"><a href="../crashbot/crashbot.html" class="nav-link">CrashBot</a></li>
+                <li id="navAuth">
+                    <a href="../../login.html" class="nav-link nav-login">Login</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Access Denied Screen (hidden by default) -->
+    <div id="accessDenied" class="access-denied" hidden>
+        <div class="access-denied-content">
+            <div class="access-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
+                </svg>
+            </div>
+            <h1>Access Denied</h1>
+            <p>You don't have permission to access the Development Portal.</p>
+            <p class="access-note">This page is restricted to Development Team members.</p>
+            <a href="../settings/settings.html" class="btn btn-primary">Back to Settings</a>
+        </div>
+    </div>
+
+    <!-- Main Portal (hidden until access verified) -->
+    <div id="portalContent" hidden>
+        <!-- Header -->
+        <header class="portal-header">
+            <div class="container">
+                <div class="header-row">
+                    <div class="header-left">
+                        <h1>Dev Portal</h1>
+                        <p>Development Task Management</p>
+                    </div>
+                    <div class="header-right">
+                        <button class="btn btn-primary" id="addTaskBtn">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="12" y1="5" x2="12" y2="19"/>
+                                <line x1="5" y1="12" x2="19" y2="12"/>
+                            </svg>
+                            Add Task
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="portal-main">
+            <div class="container">
+                <div class="portal-layout">
+                    <!-- Sidebar -->
+                    <aside class="portal-sidebar">
+                        <!-- Stats -->
+                        <div class="sidebar-card">
+                            <h3>Overview</h3>
+                            <div class="stats-grid">
+                                <div class="stat">
+                                    <span class="stat-value" id="statTodo">0</span>
+                                    <span class="stat-label">Todo</span>
+                                </div>
+                                <div class="stat">
+                                    <span class="stat-value" id="statProgress">0</span>
+                                    <span class="stat-label">In Progress</span>
+                                </div>
+                                <div class="stat">
+                                    <span class="stat-value" id="statReview">0</span>
+                                    <span class="stat-label">Review</span>
+                                </div>
+                                <div class="stat">
+                                    <span class="stat-value" id="statCompleted">0</span>
+                                    <span class="stat-label">Done</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Team Members -->
+                        <div class="sidebar-card">
+                            <h3>Team</h3>
+                            <div class="team-list" id="teamList">
+                                <div class="loading-small">Loading...</div>
+                            </div>
+                        </div>
+
+                        <!-- Filters -->
+                        <div class="sidebar-card">
+                            <h3>Filter</h3>
+                            <div class="filter-group">
+                                <label class="filter-label">Assignee</label>
+                                <select id="filterAssignee" class="filter-select">
+                                    <option value="">All</option>
+                                    <option value="me">Assigned to me</option>
+                                    <option value="unassigned">Unassigned</option>
+                                </select>
+                            </div>
+                            <div class="filter-group">
+                                <label class="filter-label">Priority</label>
+                                <select id="filterPriority" class="filter-select">
+                                    <option value="">All</option>
+                                    <option value="high">High</option>
+                                    <option value="medium">Medium</option>
+                                    <option value="low">Low</option>
+                                </select>
+                            </div>
+                        </div>
+                    </aside>
+
+                    <!-- Kanban Board -->
+                    <div class="kanban-board">
+                        <!-- Todo Column -->
+                        <div class="kanban-column" data-status="todo">
+                            <div class="column-header">
+                                <h3>Todo</h3>
+                                <span class="column-count" id="countTodo">0</span>
+                            </div>
+                            <div class="column-tasks" id="columnTodo">
+                                <!-- Tasks will be inserted here -->
+                            </div>
+                        </div>
+
+                        <!-- In Progress Column -->
+                        <div class="kanban-column" data-status="in_progress">
+                            <div class="column-header">
+                                <h3>In Progress</h3>
+                                <span class="column-count" id="countProgress">0</span>
+                            </div>
+                            <div class="column-tasks" id="columnProgress">
+                                <!-- Tasks will be inserted here -->
+                            </div>
+                        </div>
+
+                        <!-- Review Column -->
+                        <div class="kanban-column" data-status="review">
+                            <div class="column-header">
+                                <h3>Review</h3>
+                                <span class="column-count" id="countReview">0</span>
+                            </div>
+                            <div class="column-tasks" id="columnReview">
+                                <!-- Tasks will be inserted here -->
+                            </div>
+                        </div>
+
+                        <!-- Completed Column -->
+                        <div class="kanban-column" data-status="completed">
+                            <div class="column-header">
+                                <h3>Completed</h3>
+                                <span class="column-count" id="countCompleted">0</span>
+                            </div>
+                            <div class="column-tasks" id="columnCompleted">
+                                <!-- Tasks will be inserted here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add Task Modal -->
+    <div class="modal" id="addTaskModal" hidden>
+        <div class="modal-backdrop"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add New Task</h2>
+                <button class="modal-close" id="closeAddModal">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+                        <line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+            </div>
+            <form id="addTaskForm">
+                <div class="form-group">
+                    <label>Title</label>
+                    <input type="text" id="taskTitle" required placeholder="Task title...">
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="taskDescription" rows="4" placeholder="Describe the task..."></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Priority</label>
+                        <select id="taskPriority">
+                            <option value="low">Low</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="high">High</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Assign To</label>
+                        <select id="taskAssignee">
+                            <option value="">Unassigned</option>
+                            <!-- Options populated dynamically -->
+                        </select>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancelAddTask">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Task</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Task Detail Slideout -->
+    <div class="slideout" id="taskSlideout" hidden>
+        <div class="slideout-backdrop"></div>
+        <div class="slideout-panel">
+            <div class="slideout-header">
+                <div class="slideout-title">
+                    <span class="task-status-badge" id="detailStatus">Todo</span>
+                    <h2 id="detailTitle">Task Title</h2>
+                </div>
+                <button class="slideout-close" id="closeSlideout">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+                        <line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="slideout-body">
+                <!-- Task Info -->
+                <div class="detail-section">
+                    <h4>Description</h4>
+                    <p id="detailDescription" class="detail-description">No description provided.</p>
+                </div>
+
+                <div class="detail-section">
+                    <h4>Details</h4>
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <span class="detail-label">Priority</span>
+                            <span class="priority-badge" id="detailPriority">Medium</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Assignee</span>
+                            <div class="assignee-display" id="detailAssignee">
+                                <span class="unassigned">Unassigned</span>
+                            </div>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Created by</span>
+                            <div class="creator-display" id="detailCreator">-</div>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Created</span>
+                            <span id="detailCreated">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="detail-section" id="taskActions">
+                    <h4>Actions</h4>
+                    <div class="action-buttons">
+                        <select id="changeAssignee" class="action-select">
+                            <option value="">Change Assignee...</option>
+                        </select>
+                        <select id="changePriority" class="action-select">
+                            <option value="">Change Priority...</option>
+                            <option value="low">Low</option>
+                            <option value="medium">Medium</option>
+                            <option value="high">High</option>
+                        </select>
+                        <button class="btn btn-secondary" id="submitReviewBtn" hidden>Submit for Review</button>
+                        <button class="btn btn-primary" id="approveBtn" hidden>Approve</button>
+                        <button class="btn btn-secondary" id="requestChangesBtn" hidden>Request Changes</button>
+                        <button class="btn btn-secondary" id="markCompleteBtn" hidden>Mark Complete</button>
+                    </div>
+                </div>
+
+                <!-- Review Notes (shown if rejected) -->
+                <div class="detail-section" id="reviewNotesSection" hidden>
+                    <h4>Review Notes</h4>
+                    <div class="review-notes" id="detailReviewNotes"></div>
+                </div>
+
+                <!-- Attachments -->
+                <div class="detail-section">
+                    <h4>Attachments</h4>
+                    <div class="attachments-list" id="attachmentsList">
+                        <p class="no-attachments">No attachments yet.</p>
+                    </div>
+                    <div class="upload-attachment">
+                        <input type="file" id="attachmentInput" hidden>
+                        <button class="btn btn-secondary btn-small" id="uploadAttachmentBtn">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="17 8 12 3 7 8"/>
+                                <line x1="12" y1="3" x2="12" y2="15"/>
+                            </svg>
+                            Upload File
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Comments -->
+                <div class="detail-section">
+                    <h4>Comments</h4>
+                    <div class="comments-list" id="commentsList">
+                        <!-- Comments loaded dynamically -->
+                    </div>
+                    <div class="add-comment">
+                        <textarea id="commentInput" placeholder="Add a comment..." rows="2"></textarea>
+                        <button class="btn btn-primary btn-small" id="addCommentBtn">Post</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Request Changes Modal -->
+    <div class="modal" id="requestChangesModal" hidden>
+        <div class="modal-backdrop"></div>
+        <div class="modal-content modal-small">
+            <div class="modal-header">
+                <h2>Request Changes</h2>
+                <button class="modal-close" id="closeChangesModal">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+                        <line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+            </div>
+            <form id="requestChangesForm">
+                <div class="form-group">
+                    <label>Feedback Notes</label>
+                    <textarea id="changesNotes" rows="4" required placeholder="Explain what needs to be changed..."></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancelChanges">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Submit Feedback</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer" id="portalFooter" hidden>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <img src="../../assets/images/FSRP.png" alt="Florida State RP Logo">
+                </div>
+                <div class="footer-text">
+                    <p>&copy; 2026 Florida State RP. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script type="module" src="devportal.js"></script>
+    <script src="../../script.js"></script>
+</body>
+</html>

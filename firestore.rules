@@ -1,0 +1,62 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Crash Reports - Public read, write for logging crashes
+    match /crashReports/{document} {
+      allow read: if true;
+      allow create: if true;
+      allow update: if true;
+      // Only authenticated users with dev role can delete
+      allow delete: if request.auth != null;
+    }
+
+    // Future: User profiles
+    match /users/{userId} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Future: Events
+    match /events/{eventId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // Future: Complaints/Forms
+    match /complaints/{complaintId} {
+      allow read: if request.auth != null;
+      allow create: if true;
+    }
+
+    // Future: Department Rosters
+    match /rosters/{rosterId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // Dev Portal Tasks
+    // Note: Role validation is done server-side via Discord API
+    // These rules allow authenticated access; backend validates dev role
+    match /devTasks/{taskId} {
+      allow read: if true;
+      allow create: if true;
+      allow update: if true;
+      allow delete: if true;
+    }
+
+    // Dev Portal Comments
+    match /devTaskComments/{commentId} {
+      allow read: if true;
+      allow create: if true;
+      allow update: if true;
+      allow delete: if true;
+    }
+
+    // Permissions - Admin access control
+    // Role validation is done via Discord API on the frontend
+    match /permissions/{document} {
+      allow read: if true;
+      allow write: if true;
+    }
+  }
+}

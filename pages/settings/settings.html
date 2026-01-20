@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - Florida State RP</title>
+    <link rel="stylesheet" href="../../styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Settings Page */
+        .settings-header {
+            padding: 120px 0 40px;
+            text-align: center;
+            background: var(--dark);
+        }
+
+        .settings-header h1 {
+            font-family: var(--font-heading);
+            font-size: clamp(36px, 7vw, 48px);
+            font-weight: 700;
+            color: var(--gold);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 8px;
+        }
+
+        .settings-header p {
+            color: var(--text-muted);
+            font-size: 16px;
+        }
+
+        .settings-main {
+            padding: 40px 0 80px;
+            background: var(--dark-light);
+            min-height: 60vh;
+        }
+
+        .settings-grid {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 24px;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Profile Card */
+        .profile-card {
+            background: var(--card);
+            border-radius: 12px;
+            border: 1px solid rgba(212, 165, 116, 0.1);
+            padding: 28px;
+            text-align: center;
+            height: fit-content;
+        }
+
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            margin: 0 auto 16px;
+            border: 3px solid var(--gold);
+            overflow: hidden;
+            background: rgba(212, 165, 116, 0.1);
+        }
+
+        .profile-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .profile-avatar-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            color: var(--gold);
+            font-family: var(--font-heading);
+        }
+
+        .profile-name {
+            font-family: var(--font-heading);
+            font-size: 22px;
+            color: var(--text);
+            margin-bottom: 4px;
+        }
+
+        .profile-username {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+
+        .profile-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            background: rgba(76, 175, 80, 0.1);
+            color: #4ade80;
+        }
+
+        .profile-status.not-member {
+            background: rgba(255, 107, 107, 0.1);
+            color: #ff6b6b;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        .logout-btn {
+            margin-top: 20px;
+            width: 100%;
+            padding: 12px;
+            background: transparent;
+            border: 1px solid rgba(255, 107, 107, 0.4);
+            color: #ff6b6b;
+            font-family: var(--font-heading);
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 107, 107, 0.1);
+            border-color: #ff6b6b;
+        }
+
+        /* Settings Panels */
+        .settings-panels {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .panel {
+            background: var(--card);
+            border-radius: 12px;
+            border: 1px solid rgba(212, 165, 116, 0.1);
+            overflow: hidden;
+        }
+
+        .panel-header {
+            padding: 16px 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border-bottom: 1px solid rgba(212, 165, 116, 0.1);
+        }
+
+        .panel-header h3 {
+            font-family: var(--font-heading);
+            font-size: 15px;
+            color: var(--gold);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 0;
+        }
+
+        .panel-content {
+            padding: 20px;
+        }
+
+        /* Roles */
+        .roles-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .role-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 14px;
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: 8px;
+            border-left: 3px solid var(--gold);
+            transition: all 0.2s;
+        }
+
+        .role-badge:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .role-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .role-name {
+            color: var(--text);
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .no-roles {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .loading-roles {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .spinner-small {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(212, 165, 116, 0.2);
+            border-top-color: var(--gold);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Account Info */
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 14px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .info-value {
+            color: var(--text);
+            font-size: 14px;
+            font-family: 'Consolas', monospace;
+        }
+
+        .info-value.highlight {
+            color: var(--gold);
+            font-weight: 600;
+            font-family: var(--font-body);
+        }
+
+        /* Quick Links */
+        .quick-links {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .quick-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+            text-decoration: none;
+            color: var(--text);
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+
+        .quick-link:hover {
+            background: rgba(212, 165, 116, 0.08);
+            border-color: rgba(212, 165, 116, 0.2);
+        }
+
+        .link-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--gold), var(--orange));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .link-text h4 {
+            font-family: var(--font-heading);
+            font-size: 14px;
+            color: var(--gold);
+            margin-bottom: 2px;
+        }
+
+        .link-text p {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin: 0;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .settings-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .quick-links {
+                grid-template-columns: 1fr;
+            }
+
+            .settings-header {
+                padding: 100px 0 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar scrolled" id="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <a href="../../index.html">
+                    <img src="../../assets/images/FSRP.png" alt="Florida State RP Logo" class="logo-img">
+                </a>
+            </div>
+            <div class="nav-toggle" id="navToggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <ul class="nav-menu" id="navMenu">
+                <li class="nav-item"><a href="../../index.html" class="nav-link">Home</a></li>
+                <li class="nav-item"><a href="../../index.html#about" class="nav-link">About</a></li>
+                <li class="nav-item"><a href="../../index.html#departments" class="nav-link">Departments</a></li>
+                <li class="nav-item"><a href="../crashbot/crashbot.html" class="nav-link">CrashBot</a></li>
+                <li id="navAuth">
+                    <a href="../../login.html" class="nav-link nav-login">Login</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Header -->
+    <header class="settings-header">
+        <div class="container">
+            <h1>Account Settings</h1>
+            <p>Manage your Florida State RP profile</p>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="settings-main">
+        <div class="settings-grid">
+            <!-- Profile Card -->
+            <div class="profile-card">
+                <div class="profile-avatar" id="profileAvatar">
+                    <div class="profile-avatar-placeholder">?</div>
+                </div>
+                <div class="profile-name" id="profileName">Loading...</div>
+                <div class="profile-username" id="profileUsername">@username</div>
+                <div class="profile-status" id="profileStatus">
+                    <span class="status-dot"></span>
+                    <span>Checking...</span>
+                </div>
+                <button class="logout-btn" id="logoutBtn">Logout</button>
+            </div>
+
+            <!-- Settings Panels -->
+            <div class="settings-panels">
+                <!-- Discord Roles -->
+                <div class="panel">
+                    <div class="panel-header">
+                        <h3>Your Discord Roles</h3>
+                    </div>
+                    <div class="panel-content">
+                        <div class="roles-grid" id="rolesGrid">
+                            <div class="loading-roles">
+                                <div class="spinner-small"></div>
+                                <span>Loading roles...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Account Info -->
+                <div class="panel">
+                    <div class="panel-header">
+                        <h3>Account Information</h3>
+                    </div>
+                    <div class="panel-content">
+                        <div class="info-row">
+                            <span class="info-label">Discord ID</span>
+                            <span class="info-value" id="discordId">-</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Member Since</span>
+                            <span class="info-value" id="memberSince">-</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Total Roles</span>
+                            <span class="info-value highlight" id="totalRoles">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Links -->
+                <div class="panel">
+                    <div class="panel-header">
+                        <h3>Quick Links</h3>
+                    </div>
+                    <div class="panel-content">
+                        <div class="quick-links">
+                            <a href="../crashbot/crashbot.html" class="quick-link">
+                                <div class="link-icon">
+                                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><circle cx="9" cy="9" r="1"/><circle cx="15" cy="9" r="1"/></svg>
+                                </div>
+                                <div class="link-text">
+                                    <h4>CrashBot</h4>
+                                    <p>Analyze crash logs</p>
+                                </div>
+                            </a>
+                            <a href="../../index.html#departments" class="quick-link">
+                                <div class="link-icon">
+                                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                                </div>
+                                <div class="link-text">
+                                    <h4>Departments</h4>
+                                    <p>View rosters</p>
+                                </div>
+                            </a>
+                            <a href="https://discord.gg/floridastaterp" target="_blank" class="quick-link">
+                                <div class="link-icon">
+                                    <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>
+                                </div>
+                                <div class="link-text">
+                                    <h4>Discord</h4>
+                                    <p>Join server</p>
+                                </div>
+                            </a>
+                            <a href="../../index.html" class="quick-link">
+                                <div class="link-icon">
+                                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>
+                                </div>
+                                <div class="link-text">
+                                    <h4>Home</h4>
+                                    <p>Back to main</p>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <img src="../../assets/images/FSRP.png" alt="Florida State RP Logo">
+                </div>
+                <div class="footer-text">
+                    <p>&copy; 2026 Florida State RP. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const API_URL = '/api';
+
+        // Check if logged in
+        let token = localStorage.getItem('discord_token');
+        let refreshToken = localStorage.getItem('discord_refresh_token');
+        let user = JSON.parse(localStorage.getItem('discord_user') || 'null');
+        let inGuild = localStorage.getItem('discord_in_guild') === 'true';
+
+        if (!token || !user) {
+            window.location.href = '../../login.html';
+        }
+
+        // Cache for guild roles
+        let guildRolesCache = null;
+
+        // Token refresh function
+        async function refreshAccessToken() {
+            if (!refreshToken) {
+                return false;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/discord/refresh`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ refreshToken })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Update stored tokens
+                    token = data.accessToken;
+                    refreshToken = data.refreshToken;
+                    user = data.user;
+                    inGuild = data.inGuild;
+
+                    localStorage.setItem('discord_token', data.accessToken);
+                    localStorage.setItem('discord_refresh_token', data.refreshToken);
+                    localStorage.setItem('discord_user', JSON.stringify(data.user));
+                    localStorage.setItem('discord_roles', JSON.stringify(data.roleIds));
+                    localStorage.setItem('discord_in_guild', data.inGuild);
+
+                    return true;
+                } else if (data.needsReauth) {
+                    // Token completely expired, needs re-login
+                    logout();
+                    return false;
+                }
+            } catch (error) {
+                console.error('Token refresh failed:', error);
+            }
+            return false;
+        }
+
+        // Logout function
+        function logout() {
+            localStorage.removeItem('discord_token');
+            localStorage.removeItem('discord_refresh_token');
+            localStorage.removeItem('discord_user');
+            localStorage.removeItem('discord_roles');
+            localStorage.removeItem('discord_in_guild');
+            window.location.href = '../../login.html';
+        }
+
+        // Populate profile
+        function populateProfile() {
+            const avatarContainer = document.getElementById('profileAvatar');
+            if (user.avatar) {
+                avatarContainer.innerHTML = `<img src="${user.avatar}" alt="Avatar">`;
+            } else {
+                avatarContainer.innerHTML = `<div class="profile-avatar-placeholder">${user.displayName?.charAt(0).toUpperCase() || '?'}</div>`;
+            }
+
+            document.getElementById('profileName').textContent = user.displayName || user.username;
+            document.getElementById('profileUsername').textContent = `@${user.username}`;
+            document.getElementById('discordId').textContent = user.id;
+
+            const statusElement = document.getElementById('profileStatus');
+            if (inGuild) {
+                statusElement.innerHTML = `<span class="status-dot"></span><span>FSRP Member</span>`;
+                statusElement.classList.remove('not-member');
+            } else {
+                statusElement.innerHTML = `<span class="status-dot"></span><span>Not in Discord</span>`;
+                statusElement.classList.add('not-member');
+            }
+        }
+
+        // Fetch guild roles (role names and colors)
+        async function fetchGuildRoles() {
+            if (guildRolesCache) return guildRolesCache;
+
+            try {
+                const response = await fetch(`${API_URL}/discord/guild-roles`);
+                if (response.ok) {
+                    const data = await response.json();
+                    guildRolesCache = data.roles || [];
+                    return guildRolesCache;
+                }
+            } catch (error) {
+                console.error('Failed to fetch guild roles:', error);
+            }
+            return [];
+        }
+
+        // Load user roles
+        async function loadRoles(isRetry = false) {
+            const rolesGrid = document.getElementById('rolesGrid');
+
+            if (!inGuild) {
+                rolesGrid.innerHTML = `<p class="no-roles">Join the Florida State RP Discord to see your roles.</p>`;
+                document.getElementById('totalRoles').textContent = '0';
+                return;
+            }
+
+            try {
+                // Fetch user's role IDs and guild roles in parallel
+                const [userRolesResponse, guildRoles] = await Promise.all([
+                    fetch(`${API_URL}/discord/roles`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    }),
+                    fetchGuildRoles()
+                ]);
+
+                if (!userRolesResponse.ok) {
+                    // Token might be expired, try to refresh
+                    if (!isRetry && (userRolesResponse.status === 401 || userRolesResponse.status === 404)) {
+                        rolesGrid.innerHTML = `<div class="loading-roles"><div class="spinner-small"></div><span>Refreshing session...</span></div>`;
+                        const refreshed = await refreshAccessToken();
+                        if (refreshed) {
+                            // Retry with new token
+                            populateProfile();
+                            return loadRoles(true);
+                        } else {
+                            // Refresh failed, need to re-login
+                            rolesGrid.innerHTML = `<p class="no-roles">Session expired. <a href="../../login.html" style="color: var(--gold);">Please log in again</a>.</p>`;
+                            return;
+                        }
+                    }
+                    throw new Error('Failed to fetch roles');
+                }
+
+                const userData = await userRolesResponse.json();
+                const userRoleIds = userData.roles || [];
+
+                document.getElementById('totalRoles').textContent = userRoleIds.length;
+
+                if (userData.joinedAt) {
+                    const joinDate = new Date(userData.joinedAt);
+                    document.getElementById('memberSince').textContent = joinDate.toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric'
+                    });
+                }
+
+                if (userRoleIds.length === 0) {
+                    rolesGrid.innerHTML = `<p class="no-roles">You don't have any roles yet.</p>`;
+                    return;
+                }
+
+                // Create a map of guild roles for quick lookup
+                const roleMap = {};
+                guildRoles.forEach(role => {
+                    roleMap[role.id] = role;
+                });
+
+                // Filter and sort user's roles by position
+                const userRoles = userRoleIds
+                    .map(id => roleMap[id])
+                    .filter(role => role) // Only include roles we found
+                    .sort((a, b) => b.position - a.position);
+
+                if (userRoles.length === 0) {
+                    // Fallback if no guild roles were fetched
+                    rolesGrid.innerHTML = userRoleIds.map(roleId => `
+                        <div class="role-badge">
+                            <span class="role-color" style="background: #99aab5"></span>
+                            <span class="role-name">Role</span>
+                        </div>
+                    `).join('');
+                    return;
+                }
+
+                // Display roles with actual names and colors
+                rolesGrid.innerHTML = userRoles.map(role => `
+                    <div class="role-badge" style="border-left-color: ${role.color}">
+                        <span class="role-color" style="background: ${role.color}"></span>
+                        <span class="role-name">${role.name}</span>
+                    </div>
+                `).join('');
+
+            } catch (error) {
+                console.error('Error loading roles:', error);
+                rolesGrid.innerHTML = `<p class="no-roles">Failed to load roles. Please refresh.</p>`;
+            }
+        }
+
+        // Logout handler
+        document.getElementById('logoutBtn').addEventListener('click', logout);
+
+        // Initialize
+        populateProfile();
+        loadRoles();
+    </script>
+    <script src="../../script.js"></script>
+</body>
+</html>

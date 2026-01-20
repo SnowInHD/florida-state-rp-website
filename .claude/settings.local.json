@@ -3,7 +3,28 @@
     "allow": [
       "Bash(npm install:*)",
       "Bash(git init:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git config:*)",
+      "Bash(gh repo create:*)",
+      "Bash(npm run dev:*)",
+      "Bash(firebase --version:*)",
+      "Bash(firebase login:*)",
+      "Bash(npm run server:*)",
+      "Bash(node:*)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "Bash(curl:*)",
+      "Bash(taskkill:*)",
+      "Bash(timeout:*)",
+      "Bash(ping:*)",
+      "Bash(set DISCORD_REDIRECT_URI=http://localhost:5173/auth/callback)",
+      "Bash(tasklist:*)",
+      "Bash(cmd //c \"taskkill /F /PID 25512\")",
+      "Bash(npx dotenvx:*)",
+      "Bash(ls -la \"d:\\\\Websites\\\\Florida State RP\\\\api\"\" 2>/dev/null || echo \"API directory not found \")",
+      "Bash(cmd //c \"taskkill /F /PID 15472\")",
+      "Bash(firebase deploy:*)"
     ]
   }
 }

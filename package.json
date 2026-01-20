@@ -1,13 +1,16 @@
 {
   "name": "florida-state-rp-website",
   "version": "1.0.0",
+  "type": "module",
   "description": "Modern website for Florida State RP community with Firebase integration",
   "main": "index.html",
   "scripts": {
-    "dev": "vite",
+    "dev": "vercel dev",
     "build": "vite build",
     "preview": "vite preview",
-    "serve": "python -m http.server 8000"
+    "vite": "vite",
+    "server": "node server.js",
+    "start": "vercel dev"
   },
   "keywords": [
     "roleplay",
@@ -19,9 +22,14 @@
   "author": "Florida State RP",
   "license": "MIT",
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.71.2",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
     "firebase": "^10.8.0"
   },
   "devDependencies": {
+    "concurrently": "^9.2.1",
     "vite": "^5.0.0"
   }
 }

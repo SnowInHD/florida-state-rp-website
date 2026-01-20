@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authenticating... - Florida State RP</title>
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        .callback-page {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--secondary-dark);
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .callback-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(212, 165, 116, 0.2);
+            border-top-color: var(--primary-gold);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .callback-text {
+            color: var(--text-gray);
+            font-size: 18px;
+            font-family: var(--font-heading);
+        }
+
+        .callback-error {
+            color: #ff6b6b;
+            text-align: center;
+            max-width: 400px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="callback-page">
+        <div class="callback-spinner" id="spinner"></div>
+        <div class="callback-text" id="statusText">Authenticating with Discord...</div>
+    </div>
+
+    <script>
+        const API_URL = '/api';
+
+        async function handleCallback() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const code = urlParams.get('code');
+            const error = urlParams.get('error');
+
+            if (error) {
+                showError('Authentication was cancelled or denied.');
+                return;
+            }
+
+            if (!code) {
+                showError('No authorization code received.');
+                return;
+            }
+
+            try {
+                document.getElementById('statusText').textContent = 'Exchanging tokens...';
+
+                const response = await fetch(`${API_URL}/discord/callback`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ code })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    document.getElementById('statusText').textContent = 'Success! Redirecting...';
+
+                    // Store auth data
+                    localStorage.setItem('discord_token', data.accessToken);
+                    localStorage.setItem('discord_refresh_token', data.refreshToken);
+                    localStorage.setItem('discord_user', JSON.stringify(data.user));
+                    localStorage.setItem('discord_roles', JSON.stringify(data.roleIds));
+                    localStorage.setItem('discord_in_guild', data.inGuild);
+
+                    // Redirect to settings page
+                    setTimeout(() => {
+                        window.location.href = '../pages/settings/settings.html';
+                    }, 1000);
+                } else {
+                    showError(data.error || 'Authentication failed.');
+                }
+
+            } catch (error) {
+                console.error('Callback error:', error);
+                showError('Failed to complete authentication. Please try again.');
+            }
+        }
+
+        function showError(message) {
+            document.getElementById('spinner').style.display = 'none';
+            document.getElementById('statusText').innerHTML = `
+                <div class="callback-error">
+                    <p style="color: #ff6b6b; font-size: 20px; margin-bottom: 10px;">Authentication Failed</p>
+                    <p>${message}</p>
+                    <a href="../login.html" style="color: var(--primary-gold); margin-top: 20px; display: inline-block;">Try Again</a>
+                </div>
+            `;
+        }
+
+        // Run callback handler
+        handleCallback();
+    </script>
+</body>
+</html>

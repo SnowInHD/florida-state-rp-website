@@ -1,0 +1,33 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "crashReports",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "crashCount",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "crashReports",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "resourceName",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "lastReported",
+          "order": "DESCENDING"
+        }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}
