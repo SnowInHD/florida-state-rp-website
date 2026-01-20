@@ -43,6 +43,12 @@ export default async function handler(req, res) {
 
         const roles = await rolesResponse.json();
 
+        // Convert Discord color integer to hex string
+        function intToHex(colorInt) {
+            if (!colorInt || colorInt === 0) return '#99aab5'; // Default Discord gray
+            return '#' + colorInt.toString(16).padStart(6, '0');
+        }
+
         // Return roles sorted by position (highest first)
         const sortedRoles = roles
             .filter(role => role.name !== '@everyone')
@@ -50,7 +56,7 @@ export default async function handler(req, res) {
             .map(role => ({
                 id: role.id,
                 name: role.name,
-                color: role.color,
+                color: intToHex(role.color),
                 position: role.position,
                 permissions: role.permissions
             }));
