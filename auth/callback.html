@@ -69,7 +69,7 @@
             try {
                 document.getElementById('statusText').textContent = 'Exchanging tokens...';
 
-                const response = await fetch(`${API_URL}/discord/callback`, {
+                const response = await fetch(`${API_URL}/discord-callback`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -109,7 +109,7 @@
                 <div class="callback-error">
                     <p style="color: #ff6b6b; font-size: 20px; margin-bottom: 10px;">Authentication Failed</p>
                     <p>${message}</p>
-                    <a href="/api/discord/login?redirect=true" style="color: var(--primary-gold); margin-top: 20px; display: inline-block;">Try Again</a>
+                    <a href="/api/discord-login?redirect=true" style="color: var(--primary-gold); margin-top: 20px; display: inline-block;">Try Again</a>
                 </div>
             `;
         }

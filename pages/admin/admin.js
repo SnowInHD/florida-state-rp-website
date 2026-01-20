@@ -82,7 +82,7 @@ async function refreshToken() {
     if (!refreshToken) return false;
 
     try {
-        const response = await fetch('/api/discord/refresh', {
+        const response = await fetch('/api/discord-refresh', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ refreshToken })
@@ -113,7 +113,7 @@ async function checkAdminAccess() {
     const user = JSON.parse(localStorage.getItem('discord_user') || 'null');
 
     if (!token || !user) {
-        window.location.href = '/api/discord/login?redirect=true';
+        window.location.href = '/api/discord-login?redirect=true';
         return false;
     }
 
@@ -139,7 +139,7 @@ async function checkAdminAccess() {
 
     // Check role-based access
     try {
-        let response = await fetch('/api/discord/roles', {
+        let response = await fetch('/api/discord-roles', {
             headers: { 'Authorization': `Bearer ${token}` }
         });
 
@@ -147,7 +147,7 @@ async function checkAdminAccess() {
             const newToken = await refreshToken();
             if (newToken) {
                 token = newToken;
-                response = await fetch('/api/discord/roles', {
+                response = await fetch('/api/discord-roles', {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
             }
@@ -249,7 +249,7 @@ async function loadDiscordRoles() {
     let token = localStorage.getItem('discord_token');
 
     try {
-        let response = await fetch('/api/discord/guild-roles', {
+        let response = await fetch('/api/discord-guild-roles', {
             headers: { 'Authorization': `Bearer ${token}` }
         });
 
@@ -257,7 +257,7 @@ async function loadDiscordRoles() {
             const newToken = await refreshToken();
             if (newToken) {
                 token = newToken;
-                response = await fetch('/api/discord/guild-roles', {
+                response = await fetch('/api/discord-guild-roles', {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
             }

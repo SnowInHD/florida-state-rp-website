@@ -69,7 +69,7 @@ async function refreshNavToken() {
     if (!refreshToken) return false;
 
     try {
-        const response = await fetch('/api/discord/refresh', {
+        const response = await fetch('/api/discord-refresh', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ refreshToken })
@@ -112,7 +112,7 @@ async function updateNavAuth() {
         let userRoles = [];
 
         try {
-            let response = await fetch('/api/discord/roles', {
+            let response = await fetch('/api/discord-roles', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
 
@@ -121,7 +121,7 @@ async function updateNavAuth() {
                 const newToken = await refreshNavToken();
                 if (newToken) {
                     token = newToken;
-                    response = await fetch('/api/discord/roles', {
+                    response = await fetch('/api/discord-roles', {
                         headers: { 'Authorization': `Bearer ${token}` }
                     });
                 }
@@ -247,7 +247,7 @@ async function updateNavAuth() {
             });
         }
     } else {
-        navAuth.innerHTML = `<a href="/api/discord/login?redirect=true" class="nav-link nav-login">Login</a>`;
+        navAuth.innerHTML = `<a href="/api/discord-login?redirect=true" class="nav-link nav-login">Login</a>`;
     }
 }
 

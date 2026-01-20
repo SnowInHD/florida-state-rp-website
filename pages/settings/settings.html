@@ -350,7 +350,7 @@
                 <li class="nav-item"><a href="../../index.html#departments" class="nav-link">Departments</a></li>
                 <li class="nav-item"><a href="../crashbot/crashbot.html" class="nav-link">CrashBot</a></li>
                 <li id="navAuth">
-                    <a href="/api/discord/login?redirect=true" class="nav-link nav-login">Login</a>
+                    <a href="/api/discord-login?redirect=true" class="nav-link nav-login">Login</a>
                 </li>
             </ul>
         </div>
@@ -493,7 +493,7 @@
         let inGuild = localStorage.getItem('discord_in_guild') === 'true';
 
         if (!token || !user) {
-            window.location.href = '/api/discord/login?redirect=true';
+            window.location.href = '/api/discord-login?redirect=true';
         }
 
         // Cache for guild roles
@@ -506,7 +506,7 @@
             }
 
             try {
-                const response = await fetch(`${API_URL}/discord/refresh`, {
+                const response = await fetch(`${API_URL}/discord-refresh`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ refreshToken })
@@ -577,7 +577,7 @@
             if (guildRolesCache) return guildRolesCache;
 
             try {
-                const response = await fetch(`${API_URL}/discord/guild-roles`);
+                const response = await fetch(`${API_URL}/discord-guild-roles`);
                 if (response.ok) {
                     const data = await response.json();
                     guildRolesCache = data.roles || [];
@@ -602,7 +602,7 @@
             try {
                 // Fetch user's role IDs and guild roles in parallel
                 const [userRolesResponse, guildRoles] = await Promise.all([
-                    fetch(`${API_URL}/discord/roles`, {
+                    fetch(`${API_URL}/discord-roles`, {
                         headers: { 'Authorization': `Bearer ${token}` }
                     }),
                     fetchGuildRoles()
@@ -619,7 +619,7 @@
                             return loadRoles(true);
                         } else {
                             // Refresh failed, need to re-login
-                            rolesGrid.innerHTML = `<p class="no-roles">Session expired. <a href="/api/discord/login?redirect=true" style="color: var(--gold);">Please log in again</a>.</p>`;
+                            rolesGrid.innerHTML = `<p class="no-roles">Session expired. <a href="/api/discord-login?redirect=true" style="color: var(--gold);">Please log in again</a>.</p>`;
                             return;
                         }
                     }

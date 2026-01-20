@@ -62,7 +62,7 @@ async function refreshAccessToken() {
     if (!refreshToken) return false;
 
     try {
-        const response = await fetch(`${API_URL}/discord/refresh`, {
+        const response = await fetch(`${API_URL}/discord-refresh`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ refreshToken })
@@ -89,7 +89,7 @@ async function checkAccess() {
     const user = JSON.parse(localStorage.getItem('discord_user') || 'null');
 
     if (!token || !user) {
-        window.location.href = '/api/discord/login?redirect=true';
+        window.location.href = '/api/discord-login?redirect=true';
         return;
     }
 
@@ -100,7 +100,7 @@ async function checkAccess() {
         await loadPermissions();
 
         // Fetch user's roles
-        let response = await fetch(`${API_URL}/discord/roles`, {
+        let response = await fetch(`${API_URL}/discord-roles`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
 
@@ -111,12 +111,12 @@ async function checkAccess() {
                 token = newToken;
                 // Update current user from refreshed data
                 currentUser = JSON.parse(localStorage.getItem('discord_user') || 'null');
-                response = await fetch(`${API_URL}/discord/roles`, {
+                response = await fetch(`${API_URL}/discord-roles`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
             } else {
                 // Refresh failed, redirect to login
-                window.location.href = '/api/discord/login?redirect=true';
+                window.location.href = '/api/discord-login?redirect=true';
                 return;
             }
         }
@@ -206,7 +206,7 @@ async function initializePortal() {
 
 async function loadGuildRoles() {
     try {
-        const response = await fetch(`${API_URL}/discord/guild-roles`);
+        const response = await fetch(`${API_URL}/discord-guild-roles`);
         if (response.ok) {
             const data = await response.json();
             guildRoles = data.roles || [];
