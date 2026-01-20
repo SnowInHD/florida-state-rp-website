@@ -251,4 +251,9 @@ async function updateNavAuth() {
     }
 }
 
-document.addEventListener('DOMContentLoaded', updateNavAuth);
+// Run updateNavAuth - handle case where DOMContentLoaded already fired
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', updateNavAuth);
+} else {
+    updateNavAuth();
+}
