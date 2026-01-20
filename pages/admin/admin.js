@@ -113,7 +113,7 @@ async function checkAdminAccess() {
     const user = JSON.parse(localStorage.getItem('discord_user') || 'null');
 
     if (!token || !user) {
-        window.location.href = '../../login.html';
+        window.location.href = '/api/discord/login?redirect=true';
         return false;
     }
 

@@ -89,9 +89,9 @@
                     localStorage.setItem('discord_roles', JSON.stringify(data.roleIds));
                     localStorage.setItem('discord_in_guild', data.inGuild);
 
-                    // Redirect to settings page
+                    // Redirect to home page
                     setTimeout(() => {
-                        window.location.href = '../pages/settings/settings.html';
+                        window.location.href = '../index.html';
                     }, 1000);
                 } else {
                     showError(data.error || 'Authentication failed.');
@@ -109,7 +109,7 @@
                 <div class="callback-error">
                     <p style="color: #ff6b6b; font-size: 20px; margin-bottom: 10px;">Authentication Failed</p>
                     <p>${message}</p>
-                    <a href="../login.html" style="color: var(--primary-gold); margin-top: 20px; display: inline-block;">Try Again</a>
+                    <a href="/api/discord/login?redirect=true" style="color: var(--primary-gold); margin-top: 20px; display: inline-block;">Try Again</a>
                 </div>
             `;
         }

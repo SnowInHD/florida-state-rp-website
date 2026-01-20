@@ -493,7 +493,7 @@
         let inGuild = localStorage.getItem('discord_in_guild') === 'true';
 
         if (!token || !user) {
-            window.location.href = '../../login.html';
+            window.location.href = '/api/discord/login?redirect=true';
         }
 
         // Cache for guild roles
@@ -546,7 +546,7 @@
             localStorage.removeItem('discord_user');
             localStorage.removeItem('discord_roles');
             localStorage.removeItem('discord_in_guild');
-            window.location.href = '../../login.html';
+            window.location.href = '../../index.html';
         }
 
         // Populate profile
@@ -619,7 +619,7 @@
                             return loadRoles(true);
                         } else {
                             // Refresh failed, need to re-login
-                            rolesGrid.innerHTML = `<p class="no-roles">Session expired. <a href="../../login.html" style="color: var(--gold);">Please log in again</a>.</p>`;
+                            rolesGrid.innerHTML = `<p class="no-roles">Session expired. <a href="/api/discord/login?redirect=true" style="color: var(--gold);">Please log in again</a>.</p>`;
                             return;
                         }
                     }

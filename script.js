@@ -243,7 +243,7 @@ async function updateNavAuth() {
                 localStorage.removeItem('discord_user');
                 localStorage.removeItem('discord_roles');
                 localStorage.removeItem('discord_in_guild');
-                window.location.href = basePath + 'login.html';
+                window.location.href = basePath + 'index.html';
             });
         }
     } else {

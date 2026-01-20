@@ -37,7 +37,6 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: resolve(__dirname, 'index.html'),
-        login: resolve(__dirname, 'login.html'),
         callback: resolve(__dirname, 'auth/callback.html'),
         settings: resolve(__dirname, 'pages/settings/settings.html'),
         devportal: resolve(__dirname, 'pages/devportal/devportal.html'),
