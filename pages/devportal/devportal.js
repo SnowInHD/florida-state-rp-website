@@ -253,18 +253,17 @@ async function loadTeamMembers() {
         if (response.ok) {
             const data = await response.json();
             console.log('Dev team members found:', data.members?.length || 0);
+            console.log('Raw member data:', data.members);
 
             if (data.members && data.members.length > 0) {
-                // Map fetched members, excluding current user (already added)
-                const fetchedMembers = data.members
-                    .filter(member => member.id !== currentUser.id)
-                    .map(member => ({
-                        id: member.id,
-                        username: member.displayName || member.username,
-                        avatar: member.avatar,
-                        canApprove: APPROVE_ROLE_IDS.some(roleId => member.roles?.includes(roleId))
-                    }));
-                teamMembers = [...teamMembers, ...fetchedMembers];
+                // Replace teamMembers with fetched data (includes everyone with dev roles)
+                teamMembers = data.members.map(member => ({
+                    id: member.id,
+                    username: member.displayName || member.username,
+                    avatar: member.avatar,
+                    canApprove: APPROVE_ROLE_IDS.some(roleId => member.roles?.includes(roleId))
+                }));
+                console.log('Processed team members:', teamMembers);
             }
         } else {
             const errorData = await response.text();
