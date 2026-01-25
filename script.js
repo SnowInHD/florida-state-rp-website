@@ -109,30 +109,34 @@ async function updateNavAuth() {
         // Check if user has dev role or admin access
         let isDev = false;
         let isAdmin = ADMIN_BYPASS_IDS.includes(user.id);
-        let userRoles = [];
 
-        try {
-            let response = await fetch('/api/discord-roles', {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
+        // Use cached roles from localStorage (set during login/refresh)
+        let userRoles = JSON.parse(localStorage.getItem('discord_roles') || '[]');
 
-            // If token expired, try to refresh
-            if (!response.ok && (response.status === 401 || response.status === 404)) {
-                const newToken = await refreshNavToken();
-                if (newToken) {
-                    token = newToken;
-                    response = await fetch('/api/discord-roles', {
-                        headers: { 'Authorization': `Bearer ${token}` }
-                    });
+        // Only fetch from API if no cached roles exist
+        if (userRoles.length === 0) {
+            try {
+                let response = await fetch('/api/discord-roles', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                // If token expired, try to refresh
+                if (!response.ok && (response.status === 401 || response.status === 404)) {
+                    const newToken = await refreshNavToken();
+                    if (newToken) {
+                        token = newToken;
+                        // Roles are updated in refreshNavToken, get them from localStorage
+                        userRoles = JSON.parse(localStorage.getItem('discord_roles') || '[]');
+                    }
+                } else if (response.ok) {
+                    const data = await response.json();
+                    userRoles = data.roles || [];
+                    // Cache the roles
+                    localStorage.setItem('discord_roles', JSON.stringify(userRoles));
                 }
+            } catch (e) {
+                // Silently fail if can't check roles
             }
-
-            if (response.ok) {
-                const data = await response.json();
-                userRoles = data.roles || [];
-            }
-        } catch (e) {
-            // Silently fail if can't check roles
         }
 
         // Check permissions from Firestore for dynamic nav items
@@ -256,13 +260,16 @@ async function updateNavAuth() {
     }
 }
 
-// Run updateNavAuth - handle case where DOMContentLoaded already fired
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', updateNavAuth);
-} else {
-    // DOM already ready, run immediately
-    updateNavAuth();
+// Run updateNavAuth once - prevent duplicate runs
+let navAuthInitialized = false;
+async function initNavAuth() {
+    if (navAuthInitialized) return;
+    navAuthInitialized = true;
+    await updateNavAuth();
 }
 
-// Also run on window load as a fallback
-window.addEventListener('load', updateNavAuth);
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initNavAuth);
+} else {
+    initNavAuth();
+}
