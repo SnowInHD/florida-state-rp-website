@@ -2,6 +2,11 @@
    Dev Portal - Styles
    =================================== */
 
+/* Respect hidden attribute */
+[hidden] {
+    display: none !important;
+}
+
 /* Access Denied */
 .access-denied {
     min-height: 100vh;
