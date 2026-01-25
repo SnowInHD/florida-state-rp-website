@@ -4,12 +4,11 @@
   "description": "Modern website for Florida State RP community with Firebase integration",
   "main": "index.html",
   "scripts": {
-    "dev": "vercel dev",
+    "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "vite": "vite",
     "server": "node server.js",
-    "start": "vercel dev"
+    "start": "node server.js"
   },
   "keywords": [
     "roleplay",
