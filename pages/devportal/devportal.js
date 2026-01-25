@@ -88,6 +88,10 @@ async function checkAccess() {
     let token = localStorage.getItem('discord_token');
     const user = JSON.parse(localStorage.getItem('discord_user') || 'null');
 
+    console.log('=== DEV PORTAL ACCESS DEBUG ===');
+    console.log('Token exists:', !!token);
+    console.log('User:', user);
+
     if (!token || !user) {
         window.location.href = '/api/discord-login?redirect=true';
         return;
@@ -98,39 +102,45 @@ async function checkAccess() {
     try {
         // Load permissions from Firestore first
         await loadPermissions();
+        console.log('DEV_ROLE_IDS loaded:', DEV_ROLE_IDS);
 
-        // Fetch user's roles
-        let response = await fetch(`${API_URL}/discord-roles`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
+        // Use cached roles from localStorage first (set during login/refresh)
+        userRoles = JSON.parse(localStorage.getItem('discord_roles') || '[]');
+        console.log('Cached userRoles:', userRoles);
 
-        // If token expired, try to refresh
-        if (!response.ok && (response.status === 401 || response.status === 404)) {
-            const newToken = await refreshAccessToken();
-            if (newToken) {
-                token = newToken;
-                // Update current user from refreshed data
-                currentUser = JSON.parse(localStorage.getItem('discord_user') || 'null');
-                response = await fetch(`${API_URL}/discord-roles`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
+        // Only fetch from API if no cached roles exist
+        if (userRoles.length === 0) {
+            let response = await fetch(`${API_URL}/discord-roles`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            // If token expired, try to refresh
+            if (!response.ok && (response.status === 401 || response.status === 404)) {
+                const newToken = await refreshAccessToken();
+                if (newToken) {
+                    token = newToken;
+                    currentUser = JSON.parse(localStorage.getItem('discord_user') || 'null');
+                    // Roles are updated in refreshAccessToken
+                    userRoles = JSON.parse(localStorage.getItem('discord_roles') || '[]');
+                } else {
+                    window.location.href = '/api/discord-login?redirect=true';
+                    return;
+                }
+            } else if (response.ok) {
+                const data = await response.json();
+                userRoles = data.roles || [];
+                localStorage.setItem('discord_roles', JSON.stringify(userRoles));
             } else {
-                // Refresh failed, redirect to login
-                window.location.href = '/api/discord-login?redirect=true';
+                console.error('API error:', response.status);
+                showAccessDenied();
                 return;
             }
         }
 
-        if (!response.ok) {
-            showAccessDenied();
-            return;
-        }
-
-        const data = await response.json();
-        userRoles = data.roles || [];
-
         // Check if user has access role
         const hasAccess = userRoles.some(roleId => DEV_ROLE_IDS.includes(roleId));
+        console.log('Has access:', hasAccess);
+        console.log('Matching roles:', userRoles.filter(roleId => DEV_ROLE_IDS.includes(roleId)));
 
         // Check if user can approve (based on approve roles)
         canApprove = userRoles.some(roleId => APPROVE_ROLE_IDS.includes(roleId));
@@ -139,6 +149,7 @@ async function checkAccess() {
         canAssign = userRoles.some(roleId => ASSIGN_ROLE_IDS.includes(roleId));
 
         if (!hasAccess) {
+            console.log('Access denied - no matching roles');
             showAccessDenied();
             return;
         }
