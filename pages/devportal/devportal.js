@@ -155,11 +155,15 @@ async function checkAccess() {
         }
 
         // User has access - show portal
+        console.log('Calling showPortal()...');
         showPortal();
+        console.log('Portal shown, calling initializePortal()...');
         await initializePortal();
+        console.log('Portal initialized successfully');
 
     } catch (error) {
         console.error('Access check failed:', error);
+        console.error('Error stack:', error.stack);
         showAccessDenied();
     }
 }
