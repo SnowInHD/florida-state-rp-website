@@ -215,6 +215,9 @@ async function initializePortal() {
     // Setup event listeners
     setupEventListeners();
 
+    // Initialize custom dropdowns
+    initCustomDropdowns();
+
     // Load tasks (with real-time updates)
     setupTasksListener();
 }
@@ -319,6 +322,11 @@ function populateAssigneeDropdowns() {
             option.textContent = member.username;
             dropdown.appendChild(option);
         });
+
+        // Update custom dropdown if it exists
+        if (dropdown.dataset.customized) {
+            updateCustomDropdownOptions(dropdown);
+        }
     });
 }
 
@@ -347,15 +355,25 @@ function setupTasksListener() {
 }
 
 function updateTeamFromTasks() {
-    // Collect unique users from tasks
+    // Start with existing team members (from API)
     const userMap = new Map();
-    userMap.set(currentUser.id, {
-        id: currentUser.id,
-        username: currentUser.displayName || currentUser.username,
-        avatar: currentUser.avatar,
-        canApprove: canApprove
+
+    // Preserve existing team members loaded from API
+    teamMembers.forEach(member => {
+        userMap.set(member.id, member);
     });
 
+    // Ensure current user is included
+    if (!userMap.has(currentUser.id)) {
+        userMap.set(currentUser.id, {
+            id: currentUser.id,
+            username: currentUser.displayName || currentUser.username,
+            avatar: currentUser.avatar,
+            canApprove: canApprove
+        });
+    }
+
+    // Add any additional users from tasks that aren't already in the team
     tasks.forEach(task => {
         if (task.createdBy && !userMap.has(task.createdBy.id)) {
             userMap.set(task.createdBy.id, {
@@ -1070,6 +1088,145 @@ function setupEventListeners() {
     // Filters
     document.getElementById('filterAssignee').addEventListener('change', renderKanbanBoard);
     document.getElementById('filterPriority').addEventListener('change', renderKanbanBoard);
+}
+
+// ===================================
+// Custom Dropdown Component
+// ===================================
+function createCustomDropdown(selectElement) {
+    // Skip if already converted
+    if (selectElement.dataset.customized) return;
+    selectElement.dataset.customized = 'true';
+
+    // Create wrapper
+    const wrapper = document.createElement('div');
+    wrapper.className = 'custom-dropdown';
+
+    // Create trigger button
+    const trigger = document.createElement('button');
+    trigger.type = 'button';
+    trigger.className = 'custom-dropdown-trigger';
+
+    const selectedOption = selectElement.options[selectElement.selectedIndex];
+    trigger.innerHTML = `
+        <span class="custom-dropdown-text">${selectedOption ? selectedOption.textContent : 'Select...'}</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+    `;
+
+    // Create menu
+    const menu = document.createElement('div');
+    menu.className = 'custom-dropdown-menu';
+
+    // Populate options
+    Array.from(selectElement.options).forEach((option, index) => {
+        const optionEl = document.createElement('div');
+        optionEl.className = 'custom-dropdown-option';
+        if (index === selectElement.selectedIndex) {
+            optionEl.classList.add('selected');
+        }
+        optionEl.dataset.value = option.value;
+        optionEl.textContent = option.textContent;
+
+        optionEl.addEventListener('click', (e) => {
+            e.stopPropagation();
+
+            // Update select value
+            selectElement.value = option.value;
+
+            // Update trigger text
+            trigger.querySelector('.custom-dropdown-text').textContent = option.textContent;
+
+            // Update selected state
+            menu.querySelectorAll('.custom-dropdown-option').forEach(opt => opt.classList.remove('selected'));
+            optionEl.classList.add('selected');
+
+            // Close dropdown
+            wrapper.classList.remove('open');
+
+            // Dispatch change event
+            selectElement.dispatchEvent(new Event('change', { bubbles: true }));
+        });
+
+        menu.appendChild(optionEl);
+    });
+
+    // Toggle dropdown
+    trigger.addEventListener('click', (e) => {
+        e.stopPropagation();
+
+        // Close other dropdowns
+        document.querySelectorAll('.custom-dropdown.open').forEach(dd => {
+            if (dd !== wrapper) dd.classList.remove('open');
+        });
+
+        wrapper.classList.toggle('open');
+    });
+
+    // Hide original select
+    selectElement.style.display = 'none';
+
+    // Insert custom dropdown
+    selectElement.parentNode.insertBefore(wrapper, selectElement);
+    wrapper.appendChild(trigger);
+    wrapper.appendChild(menu);
+    wrapper.appendChild(selectElement);
+
+    return wrapper;
+}
+
+function updateCustomDropdownOptions(selectElement) {
+    const wrapper = selectElement.closest('.custom-dropdown');
+    if (!wrapper) return;
+
+    const menu = wrapper.querySelector('.custom-dropdown-menu');
+    const trigger = wrapper.querySelector('.custom-dropdown-trigger');
+
+    // Clear existing options
+    menu.innerHTML = '';
+
+    // Repopulate
+    Array.from(selectElement.options).forEach((option, index) => {
+        const optionEl = document.createElement('div');
+        optionEl.className = 'custom-dropdown-option';
+        if (index === selectElement.selectedIndex) {
+            optionEl.classList.add('selected');
+        }
+        optionEl.dataset.value = option.value;
+        optionEl.textContent = option.textContent;
+
+        optionEl.addEventListener('click', (e) => {
+            e.stopPropagation();
+            selectElement.value = option.value;
+            trigger.querySelector('.custom-dropdown-text').textContent = option.textContent;
+            menu.querySelectorAll('.custom-dropdown-option').forEach(opt => opt.classList.remove('selected'));
+            optionEl.classList.add('selected');
+            wrapper.classList.remove('open');
+            selectElement.dispatchEvent(new Event('change', { bubbles: true }));
+        });
+
+        menu.appendChild(optionEl);
+    });
+
+    // Update trigger text
+    const selectedOption = selectElement.options[selectElement.selectedIndex];
+    if (selectedOption) {
+        trigger.querySelector('.custom-dropdown-text').textContent = selectedOption.textContent;
+    }
+}
+
+// Close dropdowns when clicking outside
+document.addEventListener('click', () => {
+    document.querySelectorAll('.custom-dropdown.open').forEach(dd => {
+        dd.classList.remove('open');
+    });
+});
+
+// Initialize custom dropdowns for all selects
+function initCustomDropdowns() {
+    const selects = document.querySelectorAll('.filter-select, .form-group select, .action-select');
+    selects.forEach(select => createCustomDropdown(select));
 }
 
 // ===================================
