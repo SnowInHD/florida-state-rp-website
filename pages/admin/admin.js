@@ -131,6 +131,7 @@ async function checkAdminAccess() {
     // Check if user has admin bypass
     if (ADMIN_BYPASS_IDS.includes(user.id)) {
         console.log('BYPASS GRANTED - user ID matches bypass list');
+        console.log('Returning true from checkAdminAccess');
         return true;
     }
     console.log('Bypass check FAILED - checking Firestore...');
@@ -212,8 +213,12 @@ async function init() {
     addPageModal = document.getElementById('addPageModal');
 
     const hasAccess = await checkAdminAccess();
+    console.log('=== INIT DEBUG ===');
+    console.log('hasAccess value:', hasAccess);
+    console.log('hasAccess type:', typeof hasAccess);
 
     if (hasAccess) {
+        console.log('Showing admin content...');
         accessDenied.hidden = true;
         adminContent.hidden = false;
         adminFooter.hidden = false;
@@ -231,6 +236,7 @@ async function init() {
         // Setup modals
         setupModals();
     } else {
+        console.log('Showing access denied...');
         accessDenied.hidden = false;
         adminContent.hidden = true;
         adminFooter.hidden = true;
