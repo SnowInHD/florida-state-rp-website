@@ -1,4 +1,4 @@
-// Get user's roles from the Discord guild
+// Get user's roles from the Discord guild - v2
 const DISCORD_API = 'https://discord.com/api/v10';
 
 module.exports = async function handler(req, res) {
