@@ -23,10 +23,14 @@ import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 // ===================================
 const API_URL = '/api';
 
+// Admin bypass - these users get full access without being in the team list
+const ADMIN_BYPASS_IDS = ['208699485570859009'];
+
 // Dynamic permissions loaded from Firestore
 let DEV_ROLE_IDS = [];
 let APPROVE_ROLE_IDS = [];
 let ASSIGN_ROLE_IDS = [];
+let ADMIN_ROLE_IDS = [];
 
 // ===================================
 // State
@@ -137,19 +141,29 @@ async function checkAccess() {
             }
         }
 
-        // Check if user has access role
-        const hasAccess = userRoles.some(roleId => DEV_ROLE_IDS.includes(roleId));
-        console.log('Has access:', hasAccess);
-        console.log('Matching roles:', userRoles.filter(roleId => DEV_ROLE_IDS.includes(roleId)));
+        // Check if user is an admin (bypass ID or admin role)
+        const isAdmin = ADMIN_BYPASS_IDS.includes(currentUser.id) ||
+                        userRoles.some(roleId => ADMIN_ROLE_IDS.includes(roleId));
+        console.log('Is admin:', isAdmin);
 
-        // Check if user can approve (based on approve roles)
-        canApprove = userRoles.some(roleId => APPROVE_ROLE_IDS.includes(roleId));
+        // Check if user has access role OR is an admin
+        const hasDevAccess = userRoles.some(roleId => DEV_ROLE_IDS.includes(roleId));
+        const hasAccess = hasDevAccess || isAdmin;
+        console.log('Has dev access:', hasDevAccess);
+        console.log('Has access (including admin):', hasAccess);
+        console.log('Matching dev roles:', userRoles.filter(roleId => DEV_ROLE_IDS.includes(roleId)));
 
-        // Check if user can assign (based on assign roles)
-        canAssign = userRoles.some(roleId => ASSIGN_ROLE_IDS.includes(roleId));
+        // Check if user can approve (based on approve roles OR is admin)
+        canApprove = isAdmin || userRoles.some(roleId => APPROVE_ROLE_IDS.includes(roleId));
+
+        // Check if user can assign (based on assign roles OR is admin)
+        canAssign = isAdmin || userRoles.some(roleId => ASSIGN_ROLE_IDS.includes(roleId));
+
+        console.log('Can approve:', canApprove);
+        console.log('Can assign:', canAssign);
 
         if (!hasAccess) {
-            console.log('Access denied - no matching roles');
+            console.log('Access denied - no matching roles and not admin');
             showAccessDenied();
             return;
         }
@@ -175,11 +189,13 @@ async function loadPermissions() {
         if (pagesDoc.exists()) {
             const pages = pagesDoc.data();
             const devportalPerms = pages.devportal?.permissions || {};
+            const adminPerms = pages.admin?.permissions || {};
 
             // Set role IDs from Firestore
             DEV_ROLE_IDS = devportalPerms.access || [];
             APPROVE_ROLE_IDS = devportalPerms.approve || [];
             ASSIGN_ROLE_IDS = devportalPerms.assign || [];
+            ADMIN_ROLE_IDS = adminPerms.access || [];
         }
     } catch (error) {
         console.error('Error loading permissions:', error);
@@ -187,6 +203,7 @@ async function loadPermissions() {
         DEV_ROLE_IDS = [];
         APPROVE_ROLE_IDS = [];
         ASSIGN_ROLE_IDS = [];
+        ADMIN_ROLE_IDS = [];
     }
 }
 
