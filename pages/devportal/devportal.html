@@ -56,129 +56,160 @@
     <div id="portalContent" hidden>
         <!-- Header -->
         <header class="portal-header">
-            <div class="container">
+            <div class="container-wide">
                 <div class="header-row">
                     <div class="header-left">
                         <h1>Dev Portal</h1>
-                        <p>Development Task Management</p>
                     </div>
                     <div class="header-right">
-                        <button class="btn btn-primary" id="addTaskBtn">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <line x1="12" y1="5" x2="12" y2="19"/>
-                                <line x1="5" y1="12" x2="19" y2="12"/>
-                            </svg>
-                            Add Task
-                        </button>
+                        <!-- Stats Bar -->
+                        <div class="stats-bar">
+                            <div class="stat-item">
+                                <span class="stat-value" id="statTodo">0</span>
+                                <span class="stat-label">Todo</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-value" id="statProgress">0</span>
+                                <span class="stat-label">In Progress</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-value" id="statReview">0</span>
+                                <span class="stat-label">Review</span>
+                            </div>
+                            <div class="stat-item completed">
+                                <span class="stat-value" id="statCompleted">0</span>
+                                <span class="stat-label">Done</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </header>
 
+        <!-- Toolbar -->
+        <div class="portal-toolbar">
+            <div class="container-wide">
+                <div class="toolbar-row">
+                    <div class="toolbar-left">
+                        <button class="btn btn-primary" id="addTaskBtn">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="12" y1="5" x2="12" y2="19"/>
+                                <line x1="5" y1="12" x2="19" y2="12"/>
+                            </svg>
+                            New Task
+                        </button>
+                        <button class="btn btn-ghost" id="teamToggleBtn">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                                <circle cx="9" cy="7" r="4"/>
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                            </svg>
+                            Team
+                            <span class="team-count" id="teamCount">0</span>
+                        </button>
+                    </div>
+                    <div class="toolbar-right">
+                        <div class="filter-inline">
+                            <label>Assignee</label>
+                            <select id="filterAssignee" class="filter-select">
+                                <option value="">All</option>
+                                <option value="me">Mine</option>
+                                <option value="unassigned">Unassigned</option>
+                            </select>
+                        </div>
+                        <div class="filter-inline">
+                            <label>Priority</label>
+                            <select id="filterPriority" class="filter-select">
+                                <option value="">All</option>
+                                <option value="high">High</option>
+                                <option value="medium">Medium</option>
+                                <option value="low">Low</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Team Panel (collapsible) -->
+        <div class="team-panel" id="teamPanel" hidden>
+            <div class="container-wide">
+                <div class="team-panel-content">
+                    <div class="team-panel-header">
+                        <h3>Development Team</h3>
+                        <button class="panel-close" id="teamCloseBtn">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="18" y1="6" x2="6" y2="18"/>
+                                <line x1="6" y1="6" x2="18" y2="18"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="team-grid" id="teamList">
+                        <div class="loading-small">Loading team...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Main Content -->
         <main class="portal-main">
-            <div class="container">
-                <div class="portal-layout">
-                    <!-- Sidebar -->
-                    <aside class="portal-sidebar">
-                        <!-- Stats -->
-                        <div class="sidebar-card">
-                            <h3>Overview</h3>
-                            <div class="stats-grid">
-                                <div class="stat">
-                                    <span class="stat-value" id="statTodo">0</span>
-                                    <span class="stat-label">Todo</span>
-                                </div>
-                                <div class="stat">
-                                    <span class="stat-value" id="statProgress">0</span>
-                                    <span class="stat-label">In Progress</span>
-                                </div>
-                                <div class="stat">
-                                    <span class="stat-value" id="statReview">0</span>
-                                    <span class="stat-label">Review</span>
-                                </div>
-                                <div class="stat">
-                                    <span class="stat-value" id="statCompleted">0</span>
-                                    <span class="stat-label">Done</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Team Members -->
-                        <div class="sidebar-card">
-                            <h3>Team</h3>
-                            <div class="team-list" id="teamList">
-                                <div class="loading-small">Loading...</div>
-                            </div>
-                        </div>
-
-                        <!-- Filters -->
-                        <div class="sidebar-card">
-                            <h3>Filter</h3>
-                            <div class="filter-group">
-                                <label class="filter-label">Assignee</label>
-                                <select id="filterAssignee" class="filter-select">
-                                    <option value="">All</option>
-                                    <option value="me">Assigned to me</option>
-                                    <option value="unassigned">Unassigned</option>
-                                </select>
-                            </div>
-                            <div class="filter-group">
-                                <label class="filter-label">Priority</label>
-                                <select id="filterPriority" class="filter-select">
-                                    <option value="">All</option>
-                                    <option value="high">High</option>
-                                    <option value="medium">Medium</option>
-                                    <option value="low">Low</option>
-                                </select>
-                            </div>
-                        </div>
-                    </aside>
-
-                    <!-- Kanban Board -->
-                    <div class="kanban-board">
-                        <!-- Todo Column -->
-                        <div class="kanban-column" data-status="todo">
-                            <div class="column-header">
+            <div class="container-wide">
+                <!-- Kanban Board -->
+                <div class="kanban-board">
+                    <!-- Todo Column -->
+                    <div class="kanban-column" data-status="todo">
+                        <div class="column-header">
+                            <div class="column-title">
+                                <span class="column-icon todo"></span>
                                 <h3>Todo</h3>
-                                <span class="column-count" id="countTodo">0</span>
                             </div>
-                            <div class="column-tasks" id="columnTodo">
-                                <!-- Tasks will be inserted here -->
-                            </div>
+                            <span class="column-count" id="countTodo">0</span>
                         </div>
+                        <div class="column-tasks" id="columnTodo">
+                            <!-- Tasks will be inserted here -->
+                        </div>
+                    </div>
 
-                        <!-- In Progress Column -->
-                        <div class="kanban-column" data-status="in_progress">
-                            <div class="column-header">
+                    <!-- In Progress Column -->
+                    <div class="kanban-column" data-status="in_progress">
+                        <div class="column-header">
+                            <div class="column-title">
+                                <span class="column-icon in-progress"></span>
                                 <h3>In Progress</h3>
-                                <span class="column-count" id="countProgress">0</span>
                             </div>
-                            <div class="column-tasks" id="columnProgress">
-                                <!-- Tasks will be inserted here -->
-                            </div>
+                            <span class="column-count" id="countProgress">0</span>
                         </div>
+                        <div class="column-tasks" id="columnProgress">
+                            <!-- Tasks will be inserted here -->
+                        </div>
+                    </div>
 
-                        <!-- Review Column -->
-                        <div class="kanban-column" data-status="review">
-                            <div class="column-header">
+                    <!-- Review Column -->
+                    <div class="kanban-column" data-status="review">
+                        <div class="column-header">
+                            <div class="column-title">
+                                <span class="column-icon review"></span>
                                 <h3>Review</h3>
-                                <span class="column-count" id="countReview">0</span>
                             </div>
-                            <div class="column-tasks" id="columnReview">
-                                <!-- Tasks will be inserted here -->
-                            </div>
+                            <span class="column-count" id="countReview">0</span>
                         </div>
+                        <div class="column-tasks" id="columnReview">
+                            <!-- Tasks will be inserted here -->
+                        </div>
+                    </div>
 
-                        <!-- Completed Column -->
-                        <div class="kanban-column" data-status="completed">
-                            <div class="column-header">
+                    <!-- Completed Column -->
+                    <div class="kanban-column" data-status="completed">
+                        <div class="column-header">
+                            <div class="column-title">
+                                <span class="column-icon completed"></span>
                                 <h3>Completed</h3>
-                                <span class="column-count" id="countCompleted">0</span>
                             </div>
-                            <div class="column-tasks" id="columnCompleted">
-                                <!-- Tasks will be inserted here -->
-                            </div>
+                            <span class="column-count" id="countCompleted">0</span>
+                        </div>
+                        <div class="column-tasks" id="columnCompleted">
+                            <!-- Tasks will be inserted here -->
                         </div>
                     </div>
                 </div>
@@ -191,7 +222,7 @@
         <div class="modal-backdrop"></div>
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Add New Task</h2>
+                <h2>New Task</h2>
                 <button class="modal-close" id="closeAddModal">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <line x1="18" y1="6" x2="6" y2="18"/>
@@ -202,11 +233,11 @@
             <form id="addTaskForm">
                 <div class="form-group">
                     <label>Title</label>
-                    <input type="text" id="taskTitle" required placeholder="Task title...">
+                    <input type="text" id="taskTitle" required placeholder="What needs to be done?">
                 </div>
                 <div class="form-group">
                     <label>Description</label>
-                    <textarea id="taskDescription" rows="4" placeholder="Describe the task..."></textarea>
+                    <textarea id="taskDescription" rows="4" placeholder="Add details about this task..."></textarea>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
@@ -226,7 +257,7 @@
                     </div>
                 </div>
                 <div class="form-actions">
-                    <button type="button" class="btn btn-secondary" id="cancelAddTask">Cancel</button>
+                    <button type="button" class="btn btn-ghost" id="cancelAddTask">Cancel</button>
                     <button type="submit" class="btn btn-primary">Create Task</button>
                 </div>
             </form>
@@ -315,7 +346,7 @@
                     </div>
                     <div class="upload-attachment">
                         <input type="file" id="attachmentInput" hidden>
-                        <button class="btn btn-secondary btn-small" id="uploadAttachmentBtn">
+                        <button class="btn btn-ghost btn-small" id="uploadAttachmentBtn">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                                 <polyline points="17 8 12 3 7 8"/>
@@ -360,7 +391,7 @@
                     <textarea id="changesNotes" rows="4" required placeholder="Explain what needs to be changed..."></textarea>
                 </div>
                 <div class="form-actions">
-                    <button type="button" class="btn btn-secondary" id="cancelChanges">Cancel</button>
+                    <button type="button" class="btn btn-ghost" id="cancelChanges">Cancel</button>
                     <button type="submit" class="btn btn-primary">Submit Feedback</button>
                 </div>
             </form>

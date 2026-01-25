@@ -299,6 +299,12 @@ async function loadTeamMembers() {
 
 function renderTeamList() {
     const teamList = document.getElementById('teamList');
+    const teamCount = document.getElementById('teamCount');
+
+    // Update team count badge
+    if (teamCount) {
+        teamCount.textContent = teamMembers.length;
+    }
 
     if (teamMembers.length === 0) {
         teamList.innerHTML = '<div class="loading-small">No team members</div>';
@@ -1002,6 +1008,23 @@ async function changePriority(taskId, priority) {
 // Event Listeners
 // ===================================
 function setupEventListeners() {
+    // Team Panel Toggle
+    const teamToggleBtn = document.getElementById('teamToggleBtn');
+    const teamCloseBtn = document.getElementById('teamCloseBtn');
+    const teamPanel = document.getElementById('teamPanel');
+
+    if (teamToggleBtn && teamPanel) {
+        teamToggleBtn.addEventListener('click', () => {
+            teamPanel.hidden = !teamPanel.hidden;
+        });
+    }
+
+    if (teamCloseBtn && teamPanel) {
+        teamCloseBtn.addEventListener('click', () => {
+            teamPanel.hidden = true;
+        });
+    }
+
     // Add Task Modal
     document.getElementById('addTaskBtn').addEventListener('click', () => {
         document.getElementById('addTaskModal').hidden = false;
