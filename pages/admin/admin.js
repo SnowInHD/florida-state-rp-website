@@ -203,7 +203,7 @@ async function init() {
     accessDenied = document.getElementById('accessDenied');
     adminContent = document.getElementById('adminContent');
     adminFooter = document.getElementById('adminFooter');
-    navButtons = document.querySelectorAll('.admin-nav-item');
+    navButtons = document.querySelectorAll('.admin-tab');
     sections = {
         permissions: document.getElementById('sectionPermissions'),
         roles: document.getElementById('sectionRoles'),
@@ -355,36 +355,38 @@ function renderPermissionsList() {
 
         html += `
             <div class="permission-card" data-page="${pageId}">
-                <div class="permission-header">
+                <div class="permission-card-header">
                     <div class="permission-info">
                         <h3>${escapeHtml(page.name)}</h3>
                         <span class="permission-path">${escapeHtml(page.path)}</span>
                     </div>
-                    <button class="btn btn-secondary btn-small" onclick="editPermission('${pageId}')">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <button class="btn-edit" onclick="editPermission('${pageId}')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
                             <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
                         </svg>
                         Edit
                     </button>
                 </div>
-                <div class="permission-roles">
-                    <div class="role-group">
-                        <span class="role-label">Access:</span>
-                        <div class="role-tags">${renderRoleTags(perms.access || [])}</div>
+                <div class="permission-card-body">
+                    <div class="permission-roles">
+                        <div class="role-group">
+                            <span class="role-label">Access</span>
+                            <div class="role-tags">${renderRoleTags(perms.access || [])}</div>
+                        </div>
+                        ${perms.approve !== undefined ? `
+                        <div class="role-group">
+                            <span class="role-label">Can Approve</span>
+                            <div class="role-tags">${renderRoleTags(perms.approve || [])}</div>
+                        </div>
+                        ` : ''}
+                        ${perms.assign !== undefined ? `
+                        <div class="role-group">
+                            <span class="role-label">Can Assign</span>
+                            <div class="role-tags">${renderRoleTags(perms.assign || [])}</div>
+                        </div>
+                        ` : ''}
                     </div>
-                    ${perms.approve !== undefined ? `
-                    <div class="role-group">
-                        <span class="role-label">Can Approve:</span>
-                        <div class="role-tags">${renderRoleTags(perms.approve || [])}</div>
-                    </div>
-                    ` : ''}
-                    ${perms.assign !== undefined ? `
-                    <div class="role-group">
-                        <span class="role-label">Can Assign:</span>
-                        <div class="role-tags">${renderRoleTags(perms.assign || [])}</div>
-                    </div>
-                    ` : ''}
                 </div>
             </div>
         `;
@@ -392,7 +394,7 @@ function renderPermissionsList() {
 
     // Add new page button
     html += `
-        <button class="add-page-btn" id="addPageBtn" onclick="openAddPageModal()">
+        <button class="add-page-card" id="addPageBtn" onclick="openAddPageModal()">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <line x1="12" y1="5" x2="12" y2="19"/>
                 <line x1="5" y1="12" x2="19" y2="12"/>

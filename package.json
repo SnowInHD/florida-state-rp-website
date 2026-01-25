@@ -4,7 +4,9 @@
   "description": "Modern website for Florida State RP community with Firebase integration",
   "main": "index.html",
   "scripts": {
-    "dev": "vite",
+    "dev": "concurrently \"vite\" \"node server.js\"",
+    "dev:vite": "vite",
+    "dev:server": "node server.js",
     "build": "vite build",
     "preview": "vite preview",
     "server": "node server.js",
@@ -24,7 +26,9 @@
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
-    "firebase": "^10.8.0"
+    "firebase": "^10.8.0",
+    "firebase-admin": "^13.6.0",
+    "multer": "^2.0.2"
   },
   "devDependencies": {
     "concurrently": "^9.2.1",

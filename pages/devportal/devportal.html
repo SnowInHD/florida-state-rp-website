@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="../../assets/images/FSRP.png">
     <title>Dev Portal - Florida State RP</title>
     <link rel="stylesheet" href="../../styles.css">
     <link rel="stylesheet" href="devportal.css">
@@ -87,7 +88,8 @@
         </header>
 
         <!-- Toolbar -->
-        <div class="portal-toolbar">
+        <div class="toolbar-spacer" id="toolbarSpacer"></div>
+        <div class="portal-toolbar" id="portalToolbar">
             <div class="container-wide">
                 <div class="toolbar-row">
                     <div class="toolbar-left">
@@ -116,6 +118,21 @@
                                 <option value="">All</option>
                                 <option value="me">Mine</option>
                                 <option value="unassigned">Unassigned</option>
+                            </select>
+                        </div>
+                        <div class="filter-inline">
+                            <label>Type</label>
+                            <select id="filterWorkType" class="filter-select">
+                                <option value="">All</option>
+                                <option value="script">Script</option>
+                                <option value="optimization">Optimization</option>
+                                <option value="mlo_texture">MLO Texture</option>
+                                <option value="vehicle_texture">Vehicle Texture</option>
+                                <option value="vehicle_handling">Vehicle Handling</option>
+                                <option value="bug_fix">Bug Fix</option>
+                                <option value="ui_ux">UI/UX</option>
+                                <option value="documentation">Docs</option>
+                                <option value="other">Other</option>
                             </select>
                         </div>
                         <div class="filter-inline">
@@ -237,9 +254,24 @@
                 </div>
                 <div class="form-group">
                     <label>Description</label>
-                    <textarea id="taskDescription" rows="4" placeholder="Add details about this task..."></textarea>
+                    <textarea id="taskDescription" rows="3" placeholder="Add details about this task..."></textarea>
                 </div>
                 <div class="form-row">
+                    <div class="form-group">
+                        <label>Work Type</label>
+                        <select id="taskWorkType" required>
+                            <option value="">Select type...</option>
+                            <option value="script">Script Creation</option>
+                            <option value="optimization">Optimization</option>
+                            <option value="mlo_texture">MLO Texture</option>
+                            <option value="vehicle_texture">Vehicle Texture</option>
+                            <option value="vehicle_handling">Vehicle Handling</option>
+                            <option value="bug_fix">Bug Fix</option>
+                            <option value="ui_ux">UI/UX</option>
+                            <option value="documentation">Documentation</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
                     <div class="form-group">
                         <label>Priority</label>
                         <select id="taskPriority">
@@ -248,12 +280,11 @@
                             <option value="high">High</option>
                         </select>
                     </div>
-                    <div class="form-group">
-                        <label>Assign To</label>
-                        <select id="taskAssignee">
-                            <option value="">Unassigned</option>
-                            <!-- Options populated dynamically -->
-                        </select>
+                </div>
+                <div class="form-group">
+                    <label>Assign To</label>
+                    <div class="assignee-select-container" id="taskAssigneeContainer">
+                        <!-- Checkboxes populated dynamically -->
                     </div>
                 </div>
                 <div class="form-actions">
@@ -292,12 +323,16 @@
                     <h4>Details</h4>
                     <div class="detail-grid">
                         <div class="detail-item">
+                            <span class="detail-label">Work Type</span>
+                            <span class="work-type-badge" id="detailWorkType">-</span>
+                        </div>
+                        <div class="detail-item">
                             <span class="detail-label">Priority</span>
                             <span class="priority-badge" id="detailPriority">Medium</span>
                         </div>
-                        <div class="detail-item">
-                            <span class="detail-label">Assignee</span>
-                            <div class="assignee-display" id="detailAssignee">
+                        <div class="detail-item full-width">
+                            <span class="detail-label">Assignees</span>
+                            <div class="assignees-display" id="detailAssignees">
                                 <span class="unassigned">Unassigned</span>
                             </div>
                         </div>
@@ -316,14 +351,32 @@
                 <div class="detail-section" id="taskActions">
                     <h4>Actions</h4>
                     <div class="action-buttons">
-                        <select id="changeAssignee" class="action-select">
-                            <option value="">Change Assignee...</option>
-                        </select>
+                        <button class="btn btn-ghost" id="editAssigneesBtn">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                                <circle cx="9" cy="7" r="4"/>
+                                <line x1="19" y1="8" x2="19" y2="14"/>
+                                <line x1="16" y1="11" x2="22" y2="11"/>
+                            </svg>
+                            Edit Assignees
+                        </button>
                         <select id="changePriority" class="action-select">
                             <option value="">Change Priority...</option>
                             <option value="low">Low</option>
                             <option value="medium">Medium</option>
                             <option value="high">High</option>
+                        </select>
+                        <select id="changeWorkType" class="action-select">
+                            <option value="">Change Work Type...</option>
+                            <option value="script">Script Creation</option>
+                            <option value="optimization">Optimization</option>
+                            <option value="mlo_texture">MLO Texture</option>
+                            <option value="vehicle_texture">Vehicle Texture</option>
+                            <option value="vehicle_handling">Vehicle Handling</option>
+                            <option value="bug_fix">Bug Fix</option>
+                            <option value="ui_ux">UI/UX</option>
+                            <option value="documentation">Documentation</option>
+                            <option value="other">Other</option>
                         </select>
                         <button class="btn btn-secondary" id="submitReviewBtn" hidden>Submit for Review</button>
                         <button class="btn btn-primary" id="approveBtn" hidden>Approve</button>
@@ -395,6 +448,32 @@
                     <button type="submit" class="btn btn-primary">Submit Feedback</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Edit Assignees Modal -->
+    <div class="modal" id="editAssigneesModal" hidden>
+        <div class="modal-backdrop"></div>
+        <div class="modal-content modal-small">
+            <div class="modal-header">
+                <h2>Edit Assignees</h2>
+                <button class="modal-close" id="closeAssigneesModal">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+                        <line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="form-group" style="padding: 24px;">
+                <label>Select Assignees</label>
+                <div class="assignee-select-container" id="editAssigneesContainer">
+                    <!-- Checkboxes populated dynamically -->
+                </div>
+            </div>
+            <div class="form-actions" style="padding: 0 24px 24px;">
+                <button type="button" class="btn btn-ghost" id="cancelAssignees">Cancel</button>
+                <button type="button" class="btn btn-primary" id="saveAssignees">Save</button>
+            </div>
         </div>
     </div>
 

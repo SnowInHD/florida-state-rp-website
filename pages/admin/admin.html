@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="../../assets/images/FSRP.png">
     <title>Admin Panel - Florida State RP</title>
     <link rel="stylesheet" href="../../styles.css">
     <link rel="stylesheet" href="admin.css">
@@ -60,144 +61,156 @@
                 <div class="header-row">
                     <div class="header-left">
                         <h1>Admin Panel</h1>
-                        <p>Manage permissions and settings</p>
+                        <p>Manage permissions and settings for your server</p>
                     </div>
                 </div>
             </div>
         </header>
 
+        <!-- Tab Navigation -->
+        <div class="admin-tabs">
+            <div class="container">
+                <button class="admin-tab active" data-section="permissions">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    </svg>
+                    Page Permissions
+                </button>
+                <button class="admin-tab" data-section="roles">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                        <circle cx="9" cy="7" r="4"/>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                    </svg>
+                    Discord Roles
+                </button>
+                <button class="admin-tab" data-section="admins">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                        <path d="M2 17l10 5 10-5"/>
+                        <path d="M2 12l10 5 10-5"/>
+                    </svg>
+                    Admin Users
+                </button>
+            </div>
+        </div>
+
         <!-- Main Content -->
         <main class="admin-main">
-            <div class="container">
-                <div class="admin-grid">
-                    <!-- Sidebar Navigation -->
-                    <aside class="admin-sidebar">
-                        <nav class="admin-nav">
-                            <button class="admin-nav-item active" data-section="permissions">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                                </svg>
-                                Page Permissions
-                            </button>
-                            <button class="admin-nav-item" data-section="roles">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                                    <circle cx="9" cy="7" r="4"/>
-                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-                                    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-                                </svg>
-                                Discord Roles
-                            </button>
-                            <button class="admin-nav-item" data-section="admins">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M12 2L2 7l10 5 10-5-10-5z"/>
-                                    <path d="M2 17l10 5 10-5"/>
-                                    <path d="M2 12l10 5 10-5"/>
-                                </svg>
-                                Admin Users
-                            </button>
-                        </nav>
-                    </aside>
+            <div class="admin-content">
+                <div class="container">
+                    <!-- Permissions Section -->
+                    <section id="sectionPermissions" class="admin-section">
+                        <div class="section-header">
+                            <h2>Page Permissions</h2>
+                            <p>Configure which Discord roles can access each page and their permission levels.</p>
+                        </div>
 
-                    <!-- Main Panel -->
-                    <div class="admin-panel">
-                        <!-- Permissions Section -->
-                        <section id="sectionPermissions" class="admin-section">
-                            <div class="section-header">
-                                <h2>Page Permissions</h2>
-                                <p>Configure which Discord roles can access each page and their permission levels.</p>
-                            </div>
-
-                            <div class="permissions-list" id="permissionsList">
-                                <!-- Dev Portal Permissions -->
-                                <div class="permission-card" data-page="devportal">
-                                    <div class="permission-header">
-                                        <div class="permission-info">
-                                            <h3>Dev Portal</h3>
-                                            <span class="permission-path">/pages/devportal/</span>
-                                        </div>
-                                        <button class="btn btn-secondary btn-small" onclick="editPermission('devportal')">
-                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                                            </svg>
-                                            Edit
-                                        </button>
+                        <div class="permissions-grid" id="permissionsList">
+                            <!-- Dev Portal Permissions -->
+                            <div class="permission-card" data-page="devportal">
+                                <div class="permission-card-header">
+                                    <div class="permission-info">
+                                        <h3>Dev Portal</h3>
+                                        <span class="permission-path">/pages/devportal/</span>
                                     </div>
+                                    <button class="btn-edit" onclick="editPermission('devportal')">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                        </svg>
+                                        Edit
+                                    </button>
+                                </div>
+                                <div class="permission-card-body">
                                     <div class="permission-roles">
                                         <div class="role-group">
-                                            <span class="role-label">Access:</span>
+                                            <span class="role-label">Access</span>
                                             <div class="role-tags" id="devportal-access"></div>
                                         </div>
                                         <div class="role-group">
-                                            <span class="role-label">Can Approve:</span>
+                                            <span class="role-label">Can Approve</span>
                                             <div class="role-tags" id="devportal-approve"></div>
                                         </div>
                                         <div class="role-group">
-                                            <span class="role-label">Can Assign Work:</span>
+                                            <span class="role-label">Can Assign</span>
                                             <div class="role-tags" id="devportal-assign"></div>
                                         </div>
                                     </div>
                                 </div>
+                            </div>
 
-                                <!-- Admin Panel Permissions -->
-                                <div class="permission-card" data-page="admin">
-                                    <div class="permission-header">
-                                        <div class="permission-info">
-                                            <h3>Admin Panel</h3>
-                                            <span class="permission-path">/pages/admin/</span>
-                                        </div>
-                                        <button class="btn btn-secondary btn-small" onclick="editPermission('admin')">
-                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                                            </svg>
-                                            Edit
-                                        </button>
+                            <!-- Admin Panel Permissions -->
+                            <div class="permission-card" data-page="admin">
+                                <div class="permission-card-header">
+                                    <div class="permission-info">
+                                        <h3>Admin Panel</h3>
+                                        <span class="permission-path">/pages/admin/</span>
                                     </div>
+                                    <button class="btn-edit" onclick="editPermission('admin')">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                        </svg>
+                                        Edit
+                                    </button>
+                                </div>
+                                <div class="permission-card-body">
                                     <div class="permission-roles">
                                         <div class="role-group">
-                                            <span class="role-label">Access:</span>
+                                            <span class="role-label">Access</span>
                                             <div class="role-tags" id="admin-access"></div>
                                         </div>
                                     </div>
                                 </div>
+                            </div>
 
-                                <!-- Add New Page Button -->
-                                <button class="add-page-btn" id="addPageBtn">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <!-- Add New Page Card -->
+                            <button class="add-page-card" id="addPageBtn">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="12" y1="5" x2="12" y2="19"/>
+                                    <line x1="5" y1="12" x2="19" y2="12"/>
+                                </svg>
+                                Add New Page
+                            </button>
+                        </div>
+                    </section>
+
+                    <!-- Roles Section -->
+                    <section id="sectionRoles" class="admin-section" hidden>
+                        <div class="section-header">
+                            <h2>Discord Roles</h2>
+                            <p>View all roles from your Discord server. Click to copy the role ID.</p>
+                        </div>
+                        <div class="roles-grid" id="rolesGrid">
+                            <div class="loading-state">
+                                <div class="loading-spinner"></div>
+                                <span>Loading roles...</span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Admins Section -->
+                    <section id="sectionAdmins" class="admin-section" hidden>
+                        <div class="section-header">
+                            <h2>Admin Users</h2>
+                            <p>Users with admin bypass access. These users can access all admin features regardless of Discord roles.</p>
+                        </div>
+                        <div class="admins-container">
+                            <div class="admins-list" id="adminsList"></div>
+                            <div class="add-admin-form">
+                                <input type="text" id="newAdminId" placeholder="Enter Discord User ID" class="admin-input">
+                                <button class="btn btn-primary" id="addAdminBtn">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <line x1="12" y1="5" x2="12" y2="19"/>
                                         <line x1="5" y1="12" x2="19" y2="12"/>
                                     </svg>
-                                    Add New Page
+                                    Add Admin
                                 </button>
                             </div>
-                        </section>
-
-                        <!-- Roles Section -->
-                        <section id="sectionRoles" class="admin-section" hidden>
-                            <div class="section-header">
-                                <h2>Discord Roles</h2>
-                                <p>View all roles from your Discord server.</p>
-                            </div>
-                            <div class="roles-grid" id="rolesGrid">
-                                <div class="loading-spinner">Loading roles...</div>
-                            </div>
-                        </section>
-
-                        <!-- Admins Section -->
-                        <section id="sectionAdmins" class="admin-section" hidden>
-                            <div class="section-header">
-                                <h2>Admin Users</h2>
-                                <p>Users with admin bypass access (by Discord ID).</p>
-                            </div>
-                            <div class="admins-list" id="adminsList"></div>
-                            <div class="add-admin-form">
-                                <input type="text" id="newAdminId" placeholder="Discord User ID" class="admin-input">
-                                <button class="btn btn-primary" id="addAdminBtn">Add Admin</button>
-                            </div>
-                        </section>
-                    </div>
+                        </div>
+                    </section>
                 </div>
             </div>
         </main>
@@ -210,7 +223,7 @@
             <div class="modal-header">
                 <h2 id="editModalTitle">Edit Permissions</h2>
                 <button class="modal-close" id="closeEditModal">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <line x1="18" y1="6" x2="6" y2="18"/>
                         <line x1="6" y1="6" x2="18" y2="18"/>
                     </svg>
@@ -238,8 +251,8 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-secondary" id="cancelEditBtn">Cancel</button>
-                <button class="btn btn-primary" id="savePermissionBtn">Save Permissions</button>
+                <button class="btn btn-ghost" id="cancelEditBtn">Cancel</button>
+                <button class="btn btn-primary" id="savePermissionBtn">Save Changes</button>
             </div>
         </div>
     </div>
@@ -251,39 +264,43 @@
             <div class="modal-header">
                 <h2>Add New Page</h2>
                 <button class="modal-close" id="closeAddPageModal">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <line x1="18" y1="6" x2="6" y2="18"/>
                         <line x1="6" y1="6" x2="18" y2="18"/>
                     </svg>
                 </button>
             </div>
             <form id="addPageForm">
-                <div class="form-group">
-                    <label>Page ID</label>
-                    <input type="text" id="newPageId" required placeholder="e.g., roster, forms">
-                </div>
-                <div class="form-group">
-                    <label>Page Name</label>
-                    <input type="text" id="newPageName" required placeholder="e.g., Department Roster">
-                </div>
-                <div class="form-group">
-                    <label>Page Path</label>
-                    <input type="text" id="newPagePath" required placeholder="e.g., /pages/roster/">
-                </div>
-                <div class="form-group">
-                    <label>Permission Types</label>
-                    <div class="checkbox-group">
-                        <label class="checkbox-label">
-                            <input type="checkbox" id="hasApprove"> Has Approval System
-                        </label>
-                        <label class="checkbox-label">
-                            <input type="checkbox" id="hasAssign"> Has Assignment System
-                        </label>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Page ID</label>
+                        <input type="text" id="newPageId" required placeholder="e.g., roster, forms">
+                    </div>
+                    <div class="form-group">
+                        <label>Page Name</label>
+                        <input type="text" id="newPageName" required placeholder="e.g., Department Roster">
+                    </div>
+                    <div class="form-group">
+                        <label>Page Path</label>
+                        <input type="text" id="newPagePath" required placeholder="e.g., /pages/roster/">
+                    </div>
+                    <div class="form-group">
+                        <label>Permission Types</label>
+                        <div class="checkbox-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="hasApprove">
+                                Has Approval System
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="hasAssign">
+                                Has Assignment System
+                            </label>
+                        </div>
                     </div>
                 </div>
-                <div class="form-actions">
-                    <button type="button" class="btn btn-secondary" id="cancelAddPage">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Add Page</button>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-ghost" id="cancelAddPage">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Page</button>
                 </div>
             </form>
         </div>

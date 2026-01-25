@@ -1,7 +1,7 @@
 // ===================================
 // Dev Portal - Task Management
 // ===================================
-import { db, storage } from '../../firebase-config.js';
+import { db } from '../../firebase-config.js';
 import {
     collection,
     addDoc,
@@ -16,7 +16,6 @@ import {
     onSnapshot,
     serverTimestamp
 } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 // ===================================
 // Configuration
@@ -294,7 +293,6 @@ async function loadTeamMembers() {
     }
 
     renderTeamList();
-    populateAssigneeDropdowns();
 }
 
 function renderTeamList() {
@@ -325,32 +323,64 @@ function renderTeamList() {
     `).join('');
 }
 
-function populateAssigneeDropdowns() {
-    const dropdowns = [
-        document.getElementById('taskAssignee'),
-        document.getElementById('changeAssignee')
-    ];
+function populateAssigneeCheckboxes(containerId, selectedIds = [], autoSelectSelf = false) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
 
-    dropdowns.forEach(dropdown => {
-        if (!dropdown) return;
+    // If user can assign, show all team members
+    // Otherwise, only show themselves
+    const membersToShow = canAssign
+        ? teamMembers
+        : teamMembers.filter(m => m.id === currentUser.id);
 
-        // Keep first option (unassigned/placeholder)
-        const firstOption = dropdown.options[0];
-        dropdown.innerHTML = '';
-        dropdown.appendChild(firstOption);
+    if (membersToShow.length === 0) {
+        container.innerHTML = '<span class="assignee-empty">No team members available</span>';
+        return;
+    }
 
-        teamMembers.forEach(member => {
-            const option = document.createElement('option');
-            option.value = member.id;
-            option.textContent = member.username;
-            dropdown.appendChild(option);
-        });
+    // Auto-select current user if they can't assign others and no selections provided
+    if (!canAssign && autoSelectSelf && selectedIds.length === 0) {
+        selectedIds = [currentUser.id];
+    }
 
-        // Update custom dropdown if it exists
-        if (dropdown.dataset.customized) {
-            updateCustomDropdownOptions(dropdown);
+    container.innerHTML = membersToShow.map(member => {
+        const isChecked = selectedIds.includes(member.id);
+        return `
+            <input type="checkbox" class="assignee-checkbox" id="${containerId}-${member.id}"
+                   value="${member.id}" ${isChecked ? 'checked' : ''}>
+            <label class="assignee-label" for="${containerId}-${member.id}">
+                <span class="assignee-label-avatar">
+                    ${member.avatar
+                        ? `<img src="${member.avatar}" alt="${member.username}">`
+                        : member.username.charAt(0).toUpperCase()
+                    }
+                </span>
+                ${member.username}
+            </label>
+        `;
+    }).join('');
+}
+
+function getSelectedAssigneeIds(containerId) {
+    const container = document.getElementById(containerId);
+    if (!container) return [];
+
+    const checkboxes = container.querySelectorAll('.assignee-checkbox:checked');
+    return Array.from(checkboxes).map(cb => cb.value);
+}
+
+function getAssigneesFromIds(ids) {
+    return ids.map(id => {
+        const member = teamMembers.find(m => m.id === id);
+        if (member) {
+            return {
+                id: member.id,
+                username: member.username,
+                avatar: member.avatar
+            };
         }
-    });
+        return null;
+    }).filter(Boolean);
 }
 
 // ===================================
@@ -404,17 +434,20 @@ function updateTeamFromTasks() {
                 canApprove: false
             });
         }
-        if (task.assignedTo && !userMap.has(task.assignedTo.id)) {
-            userMap.set(task.assignedTo.id, {
-                ...task.assignedTo,
-                canApprove: false
-            });
-        }
+        // Handle both array and single assignedTo (backwards compatibility)
+        const assignees = Array.isArray(task.assignedTo) ? task.assignedTo : (task.assignedTo ? [task.assignedTo] : []);
+        assignees.forEach(assignee => {
+            if (assignee && !userMap.has(assignee.id)) {
+                userMap.set(assignee.id, {
+                    ...assignee,
+                    canApprove: false
+                });
+            }
+        });
     });
 
     teamMembers = Array.from(userMap.values());
     renderTeamList();
-    populateAssigneeDropdowns();
 }
 
 function renderKanbanBoard() {
@@ -437,14 +470,26 @@ function renderKanbanBoard() {
 
     // Apply filters
     const filterAssignee = document.getElementById('filterAssignee').value;
+    const filterWorkType = document.getElementById('filterWorkType').value;
     const filterPriority = document.getElementById('filterPriority').value;
 
     let filteredTasks = tasks;
 
     if (filterAssignee === 'me') {
-        filteredTasks = filteredTasks.filter(t => t.assignedTo?.id === currentUser.id);
+        // Handle both array and single assignedTo
+        filteredTasks = filteredTasks.filter(t => {
+            const assignees = Array.isArray(t.assignedTo) ? t.assignedTo : (t.assignedTo ? [t.assignedTo] : []);
+            return assignees.some(a => a.id === currentUser.id);
+        });
     } else if (filterAssignee === 'unassigned') {
-        filteredTasks = filteredTasks.filter(t => !t.assignedTo);
+        filteredTasks = filteredTasks.filter(t => {
+            const assignees = Array.isArray(t.assignedTo) ? t.assignedTo : (t.assignedTo ? [t.assignedTo] : []);
+            return assignees.length === 0;
+        });
+    }
+
+    if (filterWorkType) {
+        filteredTasks = filteredTasks.filter(t => t.workType === filterWorkType);
     }
 
     if (filterPriority) {
@@ -483,24 +528,49 @@ function createTaskCard(task) {
     card.draggable = true;
     card.dataset.taskId = task.id;
 
-    const assignee = task.assignedTo;
+    // Handle both array and single assignedTo (backwards compatibility)
+    const assignees = Array.isArray(task.assignedTo) ? task.assignedTo : (task.assignedTo ? [task.assignedTo] : []);
     const commentCount = task.commentCount || 0;
+    const attachmentCount = task.attachments?.length || 0;
+    const workType = task.workType || '';
 
-    card.innerHTML = `
-        <div class="task-title">${escapeHtml(task.title)}</div>
-        <div class="task-meta">
-            <div class="task-assignee">
-                ${assignee ? `
+    // Render stacked avatars (max 3 visible)
+    const maxVisible = 3;
+    const visibleAssignees = assignees.slice(0, maxVisible);
+    const extraCount = assignees.length - maxVisible;
+
+    const assigneesHtml = assignees.length > 0 ? `
+        <div class="task-assignees">
+            <div class="task-assignees-avatars">
+                ${visibleAssignees.map(a => `
                     <div class="task-assignee-avatar">
-                        ${assignee.avatar
-                            ? `<img src="${assignee.avatar}" alt="${assignee.username}">`
-                            : assignee.username.charAt(0).toUpperCase()
+                        ${a.avatar
+                            ? `<img src="${a.avatar}" alt="${a.username}">`
+                            : a.username.charAt(0).toUpperCase()
                         }
                     </div>
-                    <span class="task-assignee-name">${assignee.username}</span>
-                ` : '<span class="task-assignee-name" style="opacity: 0.5">Unassigned</span>'}
+                `).join('')}
             </div>
+            ${extraCount > 0 ? `<span class="task-assignees-count">+${extraCount}</span>` : ''}
+        </div>
+    ` : '<span class="task-assignee-name" style="opacity: 0.5">Unassigned</span>';
+
+    card.innerHTML = `
+        <div class="task-header-row" style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; padding-left: 8px;">
+            ${workType ? `<span class="work-type-badge-small ${workType}">${getWorkTypeLabel(workType)}</span>` : '<span></span>'}
+        </div>
+        <div class="task-title">${escapeHtml(task.title)}</div>
+        <div class="task-meta">
+            ${assigneesHtml}
             <div class="task-info">
+                ${attachmentCount > 0 ? `
+                    <span class="task-attachments">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
+                        </svg>
+                        ${attachmentCount}
+                    </span>
+                ` : ''}
                 ${commentCount > 0 ? `
                     <span class="task-comments">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -516,6 +586,21 @@ function createTaskCard(task) {
     card.addEventListener('click', () => openTaskDetail(task.id));
 
     return card;
+}
+
+function getWorkTypeLabel(workType) {
+    const labels = {
+        script: 'Script',
+        optimization: 'Optimization',
+        mlo_texture: 'MLO Texture',
+        vehicle_texture: 'Vehicle Texture',
+        vehicle_handling: 'Vehicle Handling',
+        bug_fix: 'Bug Fix',
+        ui_ux: 'UI/UX',
+        documentation: 'Docs',
+        other: 'Other'
+    };
+    return labels[workType] || workType;
 }
 
 function updateStats() {
@@ -624,15 +709,34 @@ async function openTaskDetail(taskId) {
     priorityBadge.textContent = task.priority ? task.priority.charAt(0).toUpperCase() + task.priority.slice(1) : 'Medium';
     priorityBadge.className = `priority-badge ${task.priority || 'medium'}`;
 
-    // Assignee
-    const assigneeDiv = document.getElementById('detailAssignee');
-    if (task.assignedTo) {
-        assigneeDiv.innerHTML = `
-            ${task.assignedTo.avatar ? `<img src="${task.assignedTo.avatar}" alt="${task.assignedTo.username}">` : ''}
-            <span>${task.assignedTo.username}</span>
-        `;
+    // Work Type
+    const workTypeBadge = document.getElementById('detailWorkType');
+    if (task.workType) {
+        workTypeBadge.textContent = getWorkTypeLabel(task.workType);
+        workTypeBadge.className = `work-type-badge ${task.workType}`;
     } else {
-        assigneeDiv.innerHTML = '<span class="unassigned">Unassigned</span>';
+        workTypeBadge.textContent = 'Not set';
+        workTypeBadge.className = 'work-type-badge';
+    }
+
+    // Assignees (multiple)
+    const assigneesDiv = document.getElementById('detailAssignees');
+    const assignees = Array.isArray(task.assignedTo) ? task.assignedTo : (task.assignedTo ? [task.assignedTo] : []);
+
+    if (assignees.length > 0) {
+        assigneesDiv.innerHTML = assignees.map(assignee => `
+            <div class="assignee-chip">
+                <span class="assignee-chip-avatar">
+                    ${assignee.avatar
+                        ? `<img src="${assignee.avatar}" alt="${assignee.username}">`
+                        : assignee.username.charAt(0).toUpperCase()
+                    }
+                </span>
+                ${assignee.username}
+            </div>
+        `).join('');
+    } else {
+        assigneesDiv.innerHTML = '<span class="unassigned">Unassigned</span>';
     }
 
     // Creator
@@ -824,7 +928,7 @@ async function loadAttachments(taskId) {
         return;
     }
 
-    attachmentsList.innerHTML = attachments.map(att => `
+    attachmentsList.innerHTML = attachments.map((att, index) => `
         <div class="attachment-item">
             <div class="attachment-icon">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -833,26 +937,96 @@ async function loadAttachments(taskId) {
                 </svg>
             </div>
             <div class="attachment-info">
-                <a href="${att.url}" target="_blank" class="attachment-name">${escapeHtml(att.name)}</a>
+                <span class="attachment-name">${escapeHtml(att.name)}</span>
+            </div>
+            <div class="attachment-actions">
+                <button class="attachment-btn download-btn" onclick="downloadAttachment('${att.url}', '${escapeHtml(att.name)}')" title="Download">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="7 10 12 15 17 10"/>
+                        <line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                </button>
+                <button class="attachment-btn delete-btn" onclick="deleteAttachment(${index})" title="Delete">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="3 6 5 6 21 6"/>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                    </svg>
+                </button>
             </div>
         </div>
     `).join('');
 }
 
+// Download attachment
+window.downloadAttachment = function(url, filename) {
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    link.target = '_blank';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+};
+
+// Delete attachment
+window.deleteAttachment = async function(index) {
+    if (!selectedTask) return;
+
+    if (!confirm('Are you sure you want to delete this attachment?')) {
+        return;
+    }
+
+    try {
+        const task = tasks.find(t => t.id === selectedTask.id);
+        const attachments = [...(task?.attachments || [])];
+
+        if (index < 0 || index >= attachments.length) return;
+
+        // Remove from array
+        attachments.splice(index, 1);
+
+        // Update Firestore
+        await updateDoc(doc(db, 'devTasks', selectedTask.id), {
+            attachments: attachments
+        });
+
+        // Reload attachments display
+        await loadAttachments(selectedTask.id);
+
+    } catch (error) {
+        console.error('Error deleting attachment:', error);
+        alert('Failed to delete attachment: ' + error.message);
+    }
+};
+
 async function uploadAttachment(file) {
     if (!selectedTask || !file) return;
 
     try {
-        const storageRef = ref(storage, `devportal/${selectedTask.id}/${file.name}`);
-        await uploadBytes(storageRef, file);
-        const url = await getDownloadURL(storageRef);
+        // Use server-side upload to avoid CORS issues
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('taskId', selectedTask.id);
+
+        const response = await fetch('/api/upload', {
+            method: 'POST',
+            body: formData
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || 'Upload failed');
+        }
+
+        const result = await response.json();
 
         const task = tasks.find(t => t.id === selectedTask.id);
         const attachments = task?.attachments || [];
         attachments.push({
-            name: file.name,
-            url: url,
-            type: file.type,
+            name: result.name,
+            url: result.url,
+            type: result.type,
             uploadedAt: new Date().toISOString()
         });
 
@@ -864,7 +1038,7 @@ async function uploadAttachment(file) {
 
     } catch (error) {
         console.error('Error uploading attachment:', error);
-        alert('Failed to upload file.');
+        alert('Failed to upload file: ' + error.message);
     }
 }
 
@@ -878,27 +1052,22 @@ async function createTask(data) {
             description: data.description || '',
             status: 'todo',
             priority: data.priority || 'medium',
+            workType: data.workType || '',
             createdBy: {
                 id: currentUser.id,
                 username: currentUser.displayName || currentUser.username,
                 avatar: currentUser.avatar
             },
-            assignedTo: null,
+            assignedTo: [], // Now an array
             createdAt: serverTimestamp(),
             updatedAt: serverTimestamp(),
             commentCount: 0,
             attachments: []
         };
 
-        if (data.assigneeId) {
-            const assignee = teamMembers.find(m => m.id === data.assigneeId);
-            if (assignee) {
-                taskData.assignedTo = {
-                    id: assignee.id,
-                    username: assignee.username,
-                    avatar: assignee.avatar
-                };
-            }
+        // Handle multiple assignee IDs
+        if (data.assigneeIds && data.assigneeIds.length > 0) {
+            taskData.assignedTo = getAssigneesFromIds(data.assigneeIds);
         }
 
         await addDoc(collection(db, 'devTasks'), taskData);
@@ -967,19 +1136,9 @@ async function requestChanges(notes) {
     }
 }
 
-async function changeAssignee(taskId, assigneeId) {
+async function changeAssignees(taskId, assigneeIds) {
     try {
-        let assignedTo = null;
-        if (assigneeId) {
-            const assignee = teamMembers.find(m => m.id === assigneeId);
-            if (assignee) {
-                assignedTo = {
-                    id: assignee.id,
-                    username: assignee.username,
-                    avatar: assignee.avatar
-                };
-            }
-        }
+        const assignedTo = getAssigneesFromIds(assigneeIds);
 
         await updateDoc(doc(db, 'devTasks', taskId), {
             assignedTo: assignedTo,
@@ -987,8 +1146,8 @@ async function changeAssignee(taskId, assigneeId) {
         });
 
     } catch (error) {
-        console.error('Error changing assignee:', error);
-        alert('Failed to change assignee.');
+        console.error('Error changing assignees:', error);
+        alert('Failed to change assignees.');
     }
 }
 
@@ -1004,10 +1163,45 @@ async function changePriority(taskId, priority) {
     }
 }
 
+async function changeWorkType(taskId, workType) {
+    try {
+        await updateDoc(doc(db, 'devTasks', taskId), {
+            workType: workType,
+            updatedAt: serverTimestamp()
+        });
+    } catch (error) {
+        console.error('Error changing work type:', error);
+        alert('Failed to change work type.');
+    }
+}
+
 // ===================================
 // Event Listeners
 // ===================================
 function setupEventListeners() {
+    // Sticky Toolbar on Scroll
+    const toolbar = document.getElementById('portalToolbar');
+    const toolbarSpacer = document.getElementById('toolbarSpacer');
+    const portalHeader = document.querySelector('.portal-header');
+
+    if (toolbar && portalHeader) {
+        const updateStickyToolbar = () => {
+            const headerBottom = portalHeader.getBoundingClientRect().bottom;
+            const navbarHeight = 82;
+
+            if (headerBottom <= navbarHeight) {
+                toolbar.classList.add('is-sticky');
+                toolbarSpacer.classList.add('active');
+            } else {
+                toolbar.classList.remove('is-sticky');
+                toolbarSpacer.classList.remove('active');
+            }
+        };
+
+        window.addEventListener('scroll', updateStickyToolbar, { passive: true });
+        updateStickyToolbar(); // Initial check
+    }
+
     // Team Panel Toggle
     const teamToggleBtn = document.getElementById('teamToggleBtn');
     const teamCloseBtn = document.getElementById('teamCloseBtn');
@@ -1028,6 +1222,9 @@ function setupEventListeners() {
     // Add Task Modal
     document.getElementById('addTaskBtn').addEventListener('click', () => {
         document.getElementById('addTaskModal').hidden = false;
+
+        // Populate assignee checkboxes (auto-select self if can't assign others)
+        populateAssigneeCheckboxes('taskAssigneeContainer', [], true);
     });
 
     document.getElementById('closeAddModal').addEventListener('click', () => {
@@ -1048,7 +1245,8 @@ function setupEventListeners() {
             title: document.getElementById('taskTitle').value,
             description: document.getElementById('taskDescription').value,
             priority: document.getElementById('taskPriority').value,
-            assigneeId: document.getElementById('taskAssignee').value
+            workType: document.getElementById('taskWorkType').value,
+            assigneeIds: getSelectedAssigneeIds('taskAssigneeContainer')
         });
 
         if (success) {
@@ -1087,19 +1285,55 @@ function setupEventListeners() {
         document.getElementById('changesNotes').value = '';
     });
 
-    // Change Assignee
-    document.getElementById('changeAssignee').addEventListener('change', async (e) => {
-        if (selectedTask && e.target.value !== '') {
-            await changeAssignee(selectedTask.id, e.target.value || null);
-            e.target.value = '';
-            openTaskDetail(selectedTask.id);
-        }
+    // Edit Assignees Modal
+    document.getElementById('editAssigneesBtn').addEventListener('click', () => {
+        if (!selectedTask) return;
+
+        // Get current assignee IDs
+        const assignees = Array.isArray(selectedTask.assignedTo) ? selectedTask.assignedTo : (selectedTask.assignedTo ? [selectedTask.assignedTo] : []);
+        const currentIds = assignees.map(a => a.id);
+
+        // Populate checkboxes with current selections
+        populateAssigneeCheckboxes('editAssigneesContainer', currentIds, false);
+
+        document.getElementById('editAssigneesModal').hidden = false;
+    });
+
+    document.getElementById('closeAssigneesModal').addEventListener('click', () => {
+        document.getElementById('editAssigneesModal').hidden = true;
+    });
+
+    document.getElementById('cancelAssignees').addEventListener('click', () => {
+        document.getElementById('editAssigneesModal').hidden = true;
+    });
+
+    document.querySelector('#editAssigneesModal .modal-backdrop').addEventListener('click', () => {
+        document.getElementById('editAssigneesModal').hidden = true;
+    });
+
+    document.getElementById('saveAssignees').addEventListener('click', async () => {
+        if (!selectedTask) return;
+
+        const assigneeIds = getSelectedAssigneeIds('editAssigneesContainer');
+        await changeAssignees(selectedTask.id, assigneeIds);
+
+        document.getElementById('editAssigneesModal').hidden = true;
+        openTaskDetail(selectedTask.id);
     });
 
     // Change Priority
     document.getElementById('changePriority').addEventListener('change', async (e) => {
         if (selectedTask && e.target.value) {
             await changePriority(selectedTask.id, e.target.value);
+            e.target.value = '';
+            openTaskDetail(selectedTask.id);
+        }
+    });
+
+    // Change Work Type
+    document.getElementById('changeWorkType').addEventListener('change', async (e) => {
+        if (selectedTask && e.target.value) {
+            await changeWorkType(selectedTask.id, e.target.value);
             e.target.value = '';
             openTaskDetail(selectedTask.id);
         }
@@ -1127,6 +1361,7 @@ function setupEventListeners() {
 
     // Filters
     document.getElementById('filterAssignee').addEventListener('change', renderKanbanBoard);
+    document.getElementById('filterWorkType').addEventListener('change', renderKanbanBoard);
     document.getElementById('filterPriority').addEventListener('change', renderKanbanBoard);
 }
 

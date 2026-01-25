@@ -5,6 +5,8 @@ import express from 'express';
 import cors from 'cors';
 import Anthropic from '@anthropic-ai/sdk';
 import dotenv from 'dotenv';
+import multer from 'multer';
+import admin from 'firebase-admin';
 
 dotenv.config();
 
@@ -19,6 +21,34 @@ const anthropic = new Anthropic({
 // Middleware
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
+
+// Initialize Firebase Admin SDK
+let firebaseAdmin = null;
+let storageBucket = null;
+
+if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+    try {
+        const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+        firebaseAdmin = admin.initializeApp({
+            credential: admin.credential.cert(serviceAccount),
+            storageBucket: 'floridastaterp-1b9c2.firebasestorage.app'
+        });
+        storageBucket = admin.storage().bucket();
+        console.log('Firebase Admin SDK initialized');
+    } catch (error) {
+        console.error('Failed to initialize Firebase Admin:', error.message);
+    }
+} else {
+    console.log('Firebase Admin SDK not configured (FIREBASE_SERVICE_ACCOUNT env var missing)');
+}
+
+// Multer setup for file uploads (memory storage)
+const upload = multer({
+    storage: multer.memoryStorage(),
+    limits: {
+        fileSize: 10 * 1024 * 1024, // 10MB limit
+    }
+});
 
 // FiveM Knowledge Base for Claude context
 const FIVEM_CONTEXT = `You are CrashBot, an AI assistant specialized in analyzing FiveM crash logs for the Florida State RP community.
@@ -665,6 +695,119 @@ app.get('/api/discord/guild-roles', async (req, res) => {
     } catch (error) {
         console.error('Get guild roles error:', error);
         res.status(500).json({ error: 'Failed to get guild roles' });
+    }
+});
+
+// Get dev team members (users with specific roles)
+app.get('/api/discord-dev-team', async (req, res) => {
+    try {
+        const botToken = process.env.DISCORD_BOT_TOKEN;
+        const guildId = process.env.DISCORD_GUILD_ID;
+
+        if (!botToken) {
+            return res.status(503).json({
+                error: 'Bot token not configured',
+                members: []
+            });
+        }
+
+        // Get role IDs from query params (comma-separated)
+        const roleIds = req.query.roles ? req.query.roles.split(',') : [];
+
+        if (roleIds.length === 0) {
+            return res.status(400).json({
+                error: 'No role IDs provided',
+                members: []
+            });
+        }
+
+        // Fetch guild members (up to 1000)
+        const membersResponse = await fetch(`${DISCORD_API}/guilds/${guildId}/members?limit=1000`, {
+            headers: {
+                Authorization: `Bot ${botToken}`
+            }
+        });
+
+        if (!membersResponse.ok) {
+            console.error('Failed to fetch guild members:', membersResponse.status);
+            return res.status(500).json({
+                error: 'Failed to fetch guild members',
+                members: []
+            });
+        }
+
+        const allMembers = await membersResponse.json();
+
+        // Filter members who have at least one of the specified roles
+        const devMembers = allMembers
+            .filter(member => member.roles.some(roleId => roleIds.includes(roleId)))
+            .map(member => ({
+                id: member.user.id,
+                username: member.user.username,
+                displayName: member.nick || member.user.global_name || member.user.username,
+                avatar: member.user.avatar
+                    ? `https://cdn.discordapp.com/avatars/${member.user.id}/${member.user.avatar}.png`
+                    : null,
+                roles: member.roles.filter(roleId => roleIds.includes(roleId))
+            }));
+
+        res.json({ members: devMembers });
+
+    } catch (error) {
+        console.error('Get dev team error:', error);
+        res.status(500).json({
+            error: 'Failed to get dev team',
+            members: []
+        });
+    }
+});
+
+// File upload endpoint for dev portal
+app.post('/api/upload', upload.single('file'), async (req, res) => {
+    try {
+        if (!storageBucket) {
+            return res.status(503).json({ error: 'File storage not configured' });
+        }
+
+        if (!req.file) {
+            return res.status(400).json({ error: 'No file provided' });
+        }
+
+        const { taskId } = req.body;
+        if (!taskId) {
+            return res.status(400).json({ error: 'Task ID required' });
+        }
+
+        // Generate unique filename
+        const timestamp = Date.now();
+        const sanitizedName = req.file.originalname.replace(/[^a-zA-Z0-9.-]/g, '_');
+        const filePath = `devportal/${taskId}/${timestamp}-${sanitizedName}`;
+
+        // Upload to Firebase Storage
+        const file = storageBucket.file(filePath);
+        await file.save(req.file.buffer, {
+            metadata: {
+                contentType: req.file.mimetype,
+            }
+        });
+
+        // Make the file publicly accessible
+        await file.makePublic();
+
+        // Get the public URL
+        const publicUrl = `https://storage.googleapis.com/${storageBucket.name}/${filePath}`;
+
+        res.json({
+            success: true,
+            url: publicUrl,
+            name: req.file.originalname,
+            type: req.file.mimetype,
+            size: req.file.size
+        });
+
+    } catch (error) {
+        console.error('Upload error:', error);
+        res.status(500).json({ error: 'Failed to upload file' });
     }
 });
 

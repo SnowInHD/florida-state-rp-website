@@ -7,6 +7,11 @@
     display: none !important;
 }
 
+/* Portal Content Container */
+#portalContent {
+    min-height: 100vh;
+}
+
 /* Wide Container */
 .container-wide {
     width: 100%;
@@ -63,9 +68,28 @@
    Header
    =================================== */
 .portal-header {
-    padding: 90px 0 20px;
+    padding: 100px 0 24px;
     background: var(--dark);
     border-bottom: 1px solid rgba(212, 175, 55, 0.15);
+    position: relative;
+}
+
+/* Gradient overlay - starts below navbar area */
+.portal-header::after {
+    content: '';
+    position: absolute;
+    top: 82px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.15) 0%, rgba(212, 175, 55, 0.03) 35%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.portal-header .container-wide {
+    position: relative;
+    z-index: 1;
 }
 
 .header-row {
@@ -126,12 +150,29 @@
    Toolbar
    =================================== */
 .portal-toolbar {
-    background: var(--dark);
+    background: #0d0d0d;
     padding: 16px 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-    position: sticky;
-    top: 70px;
-    z-index: 100;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    z-index: 500;
+    transition: box-shadow 0.2s ease;
+}
+
+.portal-toolbar.is-sticky {
+    position: fixed;
+    top: 82px;
+    left: 0;
+    right: 0;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+/* Spacer when toolbar becomes fixed */
+.toolbar-spacer {
+    height: 68px;
+    display: none;
+}
+
+.toolbar-spacer.active {
+    display: block;
 }
 
 .toolbar-row {
@@ -343,7 +384,7 @@
    Main Content
    =================================== */
 .portal-main {
-    padding: 24px 0 60px;
+    padding: 32px 0 60px;
     background: #0d0d0d;
     min-height: calc(100vh - 200px);
 }
@@ -555,6 +596,19 @@
     height: 14px;
 }
 
+.task-attachments {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.task-attachments svg {
+    width: 14px;
+    height: 14px;
+}
+
 /* ===================================
    Modal
    =================================== */
@@ -587,8 +641,44 @@
     width: 100%;
     max-width: 500px;
     max-height: 90vh;
-    overflow-y: auto;
+    overflow: hidden;
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+/* Only show scroll on modals that need it */
+.modal-content.scrollable {
+    overflow-y: auto;
+}
+
+/* Custom Scrollbar for Modals */
+.modal-content.scrollable::-webkit-scrollbar,
+.form-group textarea::-webkit-scrollbar {
+    width: 8px;
+}
+
+.modal-content.scrollable::-webkit-scrollbar-track,
+.form-group textarea::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+}
+
+.modal-content.scrollable::-webkit-scrollbar-thumb,
+.form-group textarea::-webkit-scrollbar-thumb {
+    background: rgba(212, 175, 55, 0.3);
+    border-radius: 4px;
+    transition: background 0.2s ease;
+}
+
+.modal-content.scrollable::-webkit-scrollbar-thumb:hover,
+.form-group textarea::-webkit-scrollbar-thumb:hover {
+    background: rgba(212, 175, 55, 0.5);
+}
+
+/* Firefox scrollbar */
+.modal-content.scrollable,
+.form-group textarea {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(212, 175, 55, 0.3) rgba(0, 0, 0, 0.3);
 }
 
 .modal-small {
@@ -708,6 +798,243 @@
     display: flex;
     justify-content: flex-end;
     gap: 12px;
+}
+
+/* ===================================
+   Assignee Multi-Select
+   =================================== */
+.assignee-select-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    max-height: 200px;
+    overflow-y: auto;
+    padding: 12px;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+}
+
+.assignee-select-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.assignee-select-container::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+}
+
+.assignee-select-container::-webkit-scrollbar-thumb {
+    background: rgba(212, 175, 55, 0.3);
+    border-radius: 3px;
+}
+
+.assignee-checkbox {
+    display: none;
+}
+
+.assignee-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+.assignee-label:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+.assignee-checkbox:checked + .assignee-label {
+    background: rgba(212, 175, 55, 0.15);
+    border-color: var(--gold);
+    color: var(--gold);
+}
+
+.assignee-label-avatar {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: rgba(212, 175, 55, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    font-weight: 600;
+    color: var(--gold);
+    overflow: hidden;
+}
+
+.assignee-label-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.assignee-empty {
+    color: var(--text-muted);
+    font-size: 13px;
+    padding: 8px;
+    opacity: 0.7;
+}
+
+/* ===================================
+   Work Type Badge
+   =================================== */
+.work-type-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.work-type-badge.script {
+    background: rgba(59, 130, 246, 0.15);
+    color: #60a5fa;
+}
+
+.work-type-badge.optimization {
+    background: rgba(168, 85, 247, 0.15);
+    color: #c084fc;
+}
+
+.work-type-badge.mlo_texture {
+    background: rgba(236, 72, 153, 0.15);
+    color: #f472b6;
+}
+
+.work-type-badge.vehicle_texture {
+    background: rgba(245, 158, 11, 0.15);
+    color: #fbbf24;
+}
+
+.work-type-badge.vehicle_handling {
+    background: rgba(249, 115, 22, 0.15);
+    color: #fb923c;
+}
+
+.work-type-badge.bug_fix {
+    background: rgba(239, 68, 68, 0.15);
+    color: #f87171;
+}
+
+.work-type-badge.ui_ux {
+    background: rgba(20, 184, 166, 0.15);
+    color: #2dd4bf;
+}
+
+.work-type-badge.documentation {
+    background: rgba(107, 114, 128, 0.15);
+    color: #9ca3af;
+}
+
+.work-type-badge.other {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-muted);
+}
+
+/* Small work type badge for task cards */
+.work-type-badge-small {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 9px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.work-type-badge-small.script { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+.work-type-badge-small.optimization { background: rgba(168, 85, 247, 0.2); color: #c084fc; }
+.work-type-badge-small.mlo_texture { background: rgba(236, 72, 153, 0.2); color: #f472b6; }
+.work-type-badge-small.vehicle_texture { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+.work-type-badge-small.vehicle_handling { background: rgba(249, 115, 22, 0.2); color: #fb923c; }
+.work-type-badge-small.bug_fix { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+.work-type-badge-small.ui_ux { background: rgba(20, 184, 166, 0.2); color: #2dd4bf; }
+.work-type-badge-small.documentation { background: rgba(107, 114, 128, 0.2); color: #9ca3af; }
+.work-type-badge-small.other { background: rgba(255, 255, 255, 0.1); color: var(--text-muted); }
+
+/* ===================================
+   Multiple Assignees Display
+   =================================== */
+.assignees-display {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.assignee-chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px 4px 4px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    font-size: 12px;
+    color: var(--text);
+}
+
+.assignee-chip-avatar {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: rgba(212, 175, 55, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 8px;
+    font-weight: 600;
+    color: var(--gold);
+    overflow: hidden;
+}
+
+.assignee-chip-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Stacked avatars for task cards */
+.task-assignees {
+    display: flex;
+    align-items: center;
+}
+
+.task-assignees-avatars {
+    display: flex;
+}
+
+.task-assignees-avatars .task-assignee-avatar {
+    margin-left: -8px;
+    border: 2px solid #1a1a1a;
+}
+
+.task-assignees-avatars .task-assignee-avatar:first-child {
+    margin-left: 0;
+}
+
+.task-assignees-count {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-left: 8px;
+}
+
+/* Detail grid full width item */
+.detail-item.full-width {
+    grid-column: 1 / -1;
 }
 
 /* ===================================
@@ -980,9 +1307,50 @@
     color: var(--gold);
 }
 
+.attachment-info {
+    flex: 1;
+    min-width: 0;
+}
+
 .attachment-name {
     font-size: 13px;
     color: var(--text);
+    word-break: break-all;
+}
+
+.attachment-actions {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.attachment-btn {
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.attachment-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text);
+}
+
+.attachment-btn.download-btn:hover {
+    background: rgba(212, 175, 55, 0.2);
+    color: var(--gold);
+}
+
+.attachment-btn.delete-btn:hover {
+    background: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
 }
 
 .no-attachments {

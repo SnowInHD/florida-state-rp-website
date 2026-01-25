@@ -1,5 +1,5 @@
 /* ===================================
-   Admin Panel Styles
+   Admin Panel - Modern Redesign
    =================================== */
 
 /* Respect hidden attribute */
@@ -7,13 +7,23 @@
     display: none !important;
 }
 
-/* Access Denied */
+/* Variables */
+:root {
+    --admin-card: #141414;
+    --admin-card-hover: #1a1a1a;
+    --admin-border: rgba(255, 255, 255, 0.08);
+    --admin-border-hover: rgba(212, 175, 55, 0.3);
+}
+
+/* ===================================
+   Access Denied
+   =================================== */
 .access-denied {
     min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 2rem;
+    padding: 40px 20px;
     background: var(--dark);
 }
 
@@ -25,7 +35,7 @@
 .access-icon {
     width: 80px;
     height: 80px;
-    margin: 0 auto 1.5rem;
+    margin: 0 auto 24px;
     color: #ef4444;
 }
 
@@ -36,335 +46,470 @@
 
 .access-denied h1 {
     font-family: var(--font-heading);
-    font-size: 2rem;
-    color: var(--white);
-    margin-bottom: 1rem;
+    font-size: 36px;
+    color: var(--gold);
+    margin-bottom: 12px;
 }
 
 .access-denied p {
     color: var(--text-muted);
-    margin-bottom: 0.5rem;
+    margin-bottom: 8px;
 }
 
 .access-denied .access-note {
-    font-size: 0.875rem;
-    margin-bottom: 2rem;
+    font-size: 14px;
+    margin-bottom: 24px;
 }
 
-/* Admin Header */
+/* ===================================
+   Admin Header
+   =================================== */
 .admin-header {
-    background: linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, transparent 50%);
-    border-bottom: 1px solid var(--border-color);
-    padding: 6rem 0 2rem;
+    padding: 100px 0 32px;
+    background: var(--dark);
+    border-bottom: 1px solid var(--admin-border);
+    position: relative;
+}
+
+.admin-header::after {
+    content: '';
+    position: absolute;
+    top: 82px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.12) 0%, rgba(212, 175, 55, 0.03) 35%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.admin-header .container {
+    position: relative;
+    z-index: 1;
 }
 
 .header-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 1rem;
+    gap: 24px;
 }
 
 .header-left h1 {
     font-family: var(--font-heading);
-    font-size: 2rem;
-    color: var(--white);
-    margin-bottom: 0.25rem;
+    font-size: 36px;
+    color: var(--gold);
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    margin: 0 0 8px 0;
 }
 
 .header-left p {
     color: var(--text-muted);
-    font-size: 0.95rem;
+    font-size: 15px;
+    margin: 0;
 }
 
-/* Admin Main */
+/* ===================================
+   Admin Main Layout
+   =================================== */
 .admin-main {
-    padding: 2rem 0 4rem;
+    padding: 0;
     min-height: calc(100vh - 200px);
+    background: #0a0a0a;
 }
 
 .admin-grid {
     display: grid;
-    grid-template-columns: 240px 1fr;
-    gap: 2rem;
+    grid-template-columns: 1fr;
+    gap: 0;
 }
 
-/* Sidebar */
-.admin-sidebar {
+/* ===================================
+   Tab Navigation (replaces sidebar)
+   =================================== */
+.admin-tabs {
+    background: var(--dark);
+    border-bottom: 1px solid var(--admin-border);
     position: sticky;
-    top: 100px;
-    height: fit-content;
+    top: 82px;
+    z-index: 100;
 }
 
-.admin-nav {
+.admin-tabs .container {
     display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
+    gap: 0;
 }
 
-.admin-nav-item {
+.admin-tab {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    padding: 0.875rem 1rem;
+    gap: 10px;
+    padding: 16px 24px;
     background: transparent;
-    border: 1px solid transparent;
-    border-radius: 8px;
+    border: none;
+    border-bottom: 2px solid transparent;
     color: var(--text-muted);
-    font-size: 0.95rem;
+    font-size: 14px;
+    font-weight: 500;
     cursor: pointer;
     transition: all 0.2s ease;
-    text-align: left;
-    width: 100%;
+    margin-bottom: -1px;
 }
 
-.admin-nav-item svg {
-    width: 20px;
-    height: 20px;
-    flex-shrink: 0;
+.admin-tab svg {
+    width: 18px;
+    height: 18px;
+    opacity: 0.7;
 }
 
-.admin-nav-item:hover {
-    color: var(--white);
-    background: rgba(255, 255, 255, 0.05);
+.admin-tab:hover {
+    color: var(--text);
+    background: rgba(255, 255, 255, 0.02);
 }
 
-.admin-nav-item.active {
+.admin-tab:hover svg {
+    opacity: 1;
+}
+
+.admin-tab.active {
     color: var(--gold);
-    background: rgba(212, 175, 55, 0.1);
-    border-color: var(--gold);
+    border-bottom-color: var(--gold);
+    background: rgba(212, 175, 55, 0.05);
 }
 
-/* Admin Panel */
-.admin-panel {
-    background: var(--card-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
-    padding: 1.5rem;
+.admin-tab.active svg {
+    opacity: 1;
 }
 
-.admin-section[hidden] {
-    display: none;
+/* ===================================
+   Admin Content Panel
+   =================================== */
+.admin-content {
+    padding: 32px 0 60px;
+}
+
+.admin-section {
+    animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 .section-header {
-    margin-bottom: 1.5rem;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 24px;
 }
 
 .section-header h2 {
     font-family: var(--font-heading);
-    font-size: 1.5rem;
-    color: var(--white);
-    margin-bottom: 0.5rem;
+    font-size: 24px;
+    color: var(--text);
+    margin: 0 0 8px 0;
+    font-weight: 600;
 }
 
 .section-header p {
     color: var(--text-muted);
-    font-size: 0.9rem;
+    font-size: 14px;
+    margin: 0;
 }
 
-/* Permissions List */
-.permissions-list {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
+/* ===================================
+   Permissions Cards
+   =================================== */
+.permissions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    gap: 20px;
 }
 
 .permission-card {
-    background: rgba(0, 0, 0, 0.2);
-    border: 1px solid var(--border-color);
-    border-radius: 10px;
-    padding: 1.25rem;
-    transition: border-color 0.2s ease;
+    background: var(--admin-card);
+    border: 1px solid var(--admin-border);
+    border-radius: 16px;
+    overflow: hidden;
+    transition: all 0.2s ease;
 }
 
 .permission-card:hover {
-    border-color: rgba(212, 175, 55, 0.3);
+    border-color: var(--admin-border-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
 }
 
-.permission-header {
+.permission-card-header {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 1rem;
+    align-items: center;
+    padding: 20px 24px;
+    background: rgba(255, 255, 255, 0.02);
+    border-bottom: 1px solid var(--admin-border);
+}
+
+.permission-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
 }
 
 .permission-info h3 {
     font-family: var(--font-heading);
-    font-size: 1.1rem;
-    color: var(--white);
-    margin-bottom: 0.25rem;
+    font-size: 18px;
+    color: var(--text);
+    margin: 0;
+    font-weight: 600;
 }
 
 .permission-path {
-    font-size: 0.8rem;
+    font-size: 12px;
     color: var(--text-muted);
-    font-family: monospace;
+    font-family: 'SF Mono', Monaco, monospace;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 2px 8px;
+    border-radius: 4px;
+    display: inline-block;
 }
 
-.btn-small {
-    padding: 0.5rem 0.75rem;
-    font-size: 0.85rem;
+.permission-card-body {
+    padding: 20px 24px;
 }
 
-.btn-small svg {
-    margin-right: 0.25rem;
-}
-
-/* Permission Roles */
 .permission-roles {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 16px;
 }
 
 .role-group {
     display: flex;
-    align-items: flex-start;
-    gap: 0.75rem;
+    flex-direction: column;
+    gap: 8px;
 }
 
 .role-label {
-    font-size: 0.85rem;
+    font-size: 12px;
     color: var(--text-muted);
-    min-width: 100px;
-    padding-top: 0.25rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 500;
 }
 
 .role-tags {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem;
-    flex: 1;
+    gap: 8px;
 }
 
 .role-tag {
     display: inline-flex;
     align-items: center;
-    gap: 0.25rem;
-    padding: 0.25rem 0.625rem;
-    background: rgba(212, 175, 55, 0.15);
-    border: 1px solid rgba(212, 175, 55, 0.3);
+    gap: 6px;
+    padding: 6px 12px;
+    background: rgba(212, 175, 55, 0.1);
+    border: 1px solid rgba(212, 175, 55, 0.2);
     border-radius: 20px;
-    font-size: 0.8rem;
+    font-size: 13px;
     color: var(--gold);
+    font-weight: 500;
+}
+
+.role-tag .role-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
 }
 
 .role-tag.no-roles {
-    background: rgba(255, 255, 255, 0.05);
-    border-color: var(--border-color);
+    background: rgba(255, 255, 255, 0.03);
+    border-color: var(--admin-border);
     color: var(--text-muted);
+    font-weight: 400;
 }
 
-/* Add Page Button */
-.add-page-btn {
-    display: flex;
+/* Edit Button */
+.btn-edit {
+    display: inline-flex;
     align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    width: 100%;
-    padding: 1rem;
-    background: transparent;
-    border: 2px dashed var(--border-color);
-    border-radius: 10px;
+    gap: 6px;
+    padding: 8px 16px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--admin-border);
+    border-radius: 8px;
     color: var(--text-muted);
-    font-size: 0.95rem;
+    font-size: 13px;
+    font-weight: 500;
     cursor: pointer;
     transition: all 0.2s ease;
 }
 
-.add-page-btn svg {
-    width: 20px;
-    height: 20px;
+.btn-edit svg {
+    width: 14px;
+    height: 14px;
 }
 
-.add-page-btn:hover {
+.btn-edit:hover {
+    background: rgba(212, 175, 55, 0.1);
     border-color: var(--gold);
     color: var(--gold);
-    background: rgba(212, 175, 55, 0.05);
 }
 
-/* Roles Grid */
+/* Add Page Card */
+.add-page-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    min-height: 200px;
+    background: transparent;
+    border: 2px dashed var(--admin-border);
+    border-radius: 16px;
+    color: var(--text-muted);
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.add-page-card svg {
+    width: 32px;
+    height: 32px;
+    opacity: 0.5;
+}
+
+.add-page-card:hover {
+    border-color: var(--gold);
+    color: var(--gold);
+    background: rgba(212, 175, 55, 0.03);
+}
+
+.add-page-card:hover svg {
+    opacity: 1;
+}
+
+/* ===================================
+   Discord Roles Grid
+   =================================== */
 .roles-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 1rem;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 12px;
 }
 
 .role-card {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    padding: 1rem;
-    background: rgba(0, 0, 0, 0.2);
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
+    gap: 12px;
+    padding: 16px 20px;
+    background: var(--admin-card);
+    border: 1px solid var(--admin-border);
+    border-radius: 12px;
+    transition: all 0.2s ease;
+}
+
+.role-card:hover {
+    border-color: var(--admin-border-hover);
+    background: var(--admin-card-hover);
 }
 
 .role-color {
-    width: 12px;
-    height: 12px;
+    width: 14px;
+    height: 14px;
     border-radius: 50%;
     flex-shrink: 0;
+    box-shadow: 0 0 8px currentColor;
+}
+
+.role-details {
+    flex: 1;
+    min-width: 0;
 }
 
 .role-name {
-    color: var(--white);
-    font-size: 0.9rem;
-    flex: 1;
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 500;
+    white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    white-space: nowrap;
 }
 
 .role-id {
-    font-size: 0.75rem;
+    font-size: 11px;
     color: var(--text-muted);
-    font-family: monospace;
+    font-family: 'SF Mono', Monaco, monospace;
+    margin-top: 2px;
 }
 
-.loading-spinner {
-    text-align: center;
+.copy-role-btn {
+    padding: 6px;
+    background: transparent;
+    border: none;
     color: var(--text-muted);
-    padding: 2rem;
+    cursor: pointer;
+    border-radius: 6px;
+    opacity: 0;
+    transition: all 0.2s ease;
 }
 
-/* Admins List */
+.role-card:hover .copy-role-btn {
+    opacity: 1;
+}
+
+.copy-role-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text);
+}
+
+.copy-role-btn svg {
+    width: 16px;
+    height: 16px;
+}
+
+/* ===================================
+   Admin Users Section
+   =================================== */
+.admins-container {
+    max-width: 600px;
+}
+
 .admins-list {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
-    margin-bottom: 1.5rem;
+    gap: 12px;
+    margin-bottom: 24px;
 }
 
 .admin-item {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    padding: 1rem;
-    background: rgba(0, 0, 0, 0.2);
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
+    gap: 16px;
+    padding: 16px 20px;
+    background: var(--admin-card);
+    border: 1px solid var(--admin-border);
+    border-radius: 12px;
+    transition: all 0.2s ease;
 }
 
-.admin-info {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
+.admin-item:hover {
+    border-color: var(--admin-border-hover);
 }
 
 .admin-avatar {
-    width: 40px;
-    height: 40px;
+    width: 48px;
+    height: 48px;
     border-radius: 50%;
-    background: var(--gold);
+    background: linear-gradient(135deg, var(--gold), #b8860b);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: 600;
-    color: var(--dark);
+    font-weight: 700;
+    font-size: 18px;
+    color: #000;
+    flex-shrink: 0;
 }
 
 .admin-avatar img {
@@ -375,36 +520,41 @@
 }
 
 .admin-details {
-    display: flex;
-    flex-direction: column;
+    flex: 1;
+    min-width: 0;
 }
 
 .admin-name {
-    color: var(--white);
-    font-weight: 500;
+    color: var(--text);
+    font-weight: 600;
+    font-size: 15px;
 }
 
 .admin-id {
-    font-size: 0.8rem;
+    font-size: 12px;
     color: var(--text-muted);
-    font-family: monospace;
+    font-family: 'SF Mono', Monaco, monospace;
+    margin-top: 2px;
 }
 
 .admin-badge {
-    font-size: 0.75rem;
-    padding: 0.25rem 0.5rem;
-    background: rgba(212, 175, 55, 0.2);
+    font-size: 11px;
+    padding: 4px 10px;
+    background: rgba(212, 175, 55, 0.15);
     color: var(--gold);
-    border-radius: 4px;
+    border-radius: 20px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .remove-admin-btn {
+    padding: 8px;
     background: transparent;
     border: none;
     color: var(--text-muted);
     cursor: pointer;
-    padding: 0.5rem;
-    border-radius: 4px;
+    border-radius: 8px;
     transition: all 0.2s ease;
 }
 
@@ -421,17 +571,22 @@
 /* Add Admin Form */
 .add-admin-form {
     display: flex;
-    gap: 0.75rem;
+    gap: 12px;
+    padding: 20px;
+    background: var(--admin-card);
+    border: 1px solid var(--admin-border);
+    border-radius: 12px;
 }
 
 .admin-input {
     flex: 1;
-    padding: 0.75rem 1rem;
+    padding: 12px 16px;
     background: rgba(0, 0, 0, 0.3);
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--admin-border);
     border-radius: 8px;
-    color: var(--white);
-    font-size: 0.95rem;
+    color: var(--text);
+    font-size: 14px;
+    transition: border-color 0.2s ease;
 }
 
 .admin-input:focus {
@@ -443,122 +598,203 @@
     color: var(--text-muted);
 }
 
-/* Modal Styles */
+/* Loading State */
+.loading-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    color: var(--text-muted);
+    gap: 16px;
+}
+
+.loading-spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid var(--admin-border);
+    border-top-color: var(--gold);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ===================================
+   Modern Modal Styles
+   =================================== */
 .modal {
     position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 1000;
+    inset: 0;
+    z-index: 2000;
     display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
 }
 
 .modal:not([hidden]) {
     display: flex;
-    align-items: center;
-    justify-content: center;
 }
 
 .modal-backdrop {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    position: absolute;
+    inset: 0;
     background: rgba(0, 0, 0, 0.85);
-    z-index: 1;
+    backdrop-filter: blur(8px);
 }
 
 .modal-content {
     position: relative;
-    z-index: 2;
     background: #1a1a1a;
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
-    width: 90%;
-    max-width: 500px;
-    max-height: 90vh;
-    overflow-y: auto;
+    border-radius: 20px;
+    border: 1px solid var(--admin-border);
+    width: 100%;
+    max-width: 480px;
+    max-height: 85vh;
+    overflow: hidden;
+    box-shadow: 0 25px 80px rgba(0, 0, 0, 0.5);
+    animation: modalSlideIn 0.25s ease;
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
 }
 
 .modal-large {
-    max-width: 600px;
+    max-width: 560px;
 }
 
 .modal-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1.25rem 1.5rem;
-    border-bottom: 1px solid var(--border-color);
+    padding: 24px 28px;
+    border-bottom: 1px solid var(--admin-border);
+    background: rgba(255, 255, 255, 0.02);
 }
 
 .modal-header h2 {
     font-family: var(--font-heading);
-    font-size: 1.25rem;
-    color: var(--white);
+    font-size: 20px;
+    color: var(--text);
+    margin: 0;
+    font-weight: 600;
 }
 
 .modal-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
     background: transparent;
     border: none;
     color: var(--text-muted);
     cursor: pointer;
-    padding: 0.25rem;
-    border-radius: 4px;
-    transition: color 0.2s ease;
+    border-radius: 10px;
+    transition: all 0.2s ease;
 }
 
 .modal-close:hover {
-    color: var(--white);
+    color: var(--text);
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.modal-close svg {
+    width: 20px;
+    height: 20px;
 }
 
 .modal-body {
-    padding: 1.5rem;
+    padding: 28px;
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+/* Custom Scrollbar for Modals */
+.modal-body::-webkit-scrollbar,
+.role-selector::-webkit-scrollbar {
+    width: 8px;
+}
+
+.modal-body::-webkit-scrollbar-track,
+.role-selector::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+}
+
+.modal-body::-webkit-scrollbar-thumb,
+.role-selector::-webkit-scrollbar-thumb {
+    background: rgba(212, 175, 55, 0.3);
+    border-radius: 4px;
+    transition: background 0.2s ease;
+}
+
+.modal-body::-webkit-scrollbar-thumb:hover,
+.role-selector::-webkit-scrollbar-thumb:hover {
+    background: rgba(212, 175, 55, 0.5);
+}
+
+/* Firefox scrollbar */
+.modal-body,
+.role-selector {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(212, 175, 55, 0.3) rgba(0, 0, 0, 0.3);
 }
 
 .modal-footer {
     display: flex;
     justify-content: flex-end;
-    gap: 0.75rem;
-    padding: 1rem 1.5rem;
-    border-top: 1px solid var(--border-color);
+    gap: 12px;
+    padding: 20px 28px;
+    border-top: 1px solid var(--admin-border);
+    background: rgba(0, 0, 0, 0.2);
 }
 
-/* Form Sections */
+/* Form Sections in Modal */
 .form-section {
-    margin-bottom: 1.5rem;
+    margin-bottom: 24px;
 }
 
 .form-section:last-child {
     margin-bottom: 0;
 }
 
-.form-section label {
+.form-section > label {
     display: block;
-    font-weight: 500;
-    color: var(--white);
-    margin-bottom: 0.25rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 4px;
+    font-size: 14px;
 }
 
 .form-hint {
-    font-size: 0.85rem;
+    font-size: 13px;
     color: var(--text-muted);
-    margin-bottom: 0.75rem;
+    margin-bottom: 12px;
 }
 
 /* Role Selector */
 .role-selector {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem;
-    max-height: 200px;
+    gap: 8px;
+    max-height: 180px;
     overflow-y: auto;
-    padding: 0.5rem;
-    background: rgba(0, 0, 0, 0.2);
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
+    padding: 16px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--admin-border);
+    border-radius: 12px;
 }
 
 .role-checkbox {
@@ -568,24 +804,26 @@
 .role-checkbox-label {
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 0.75rem;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid var(--border-color);
+    gap: 8px;
+    padding: 8px 14px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--admin-border);
     border-radius: 20px;
     cursor: pointer;
     transition: all 0.2s ease;
-    font-size: 0.85rem;
+    font-size: 13px;
     color: var(--text-muted);
+    font-weight: 500;
 }
 
 .role-checkbox-label:hover {
-    border-color: rgba(212, 175, 55, 0.5);
-    color: var(--white);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: var(--text);
+    background: rgba(255, 255, 255, 0.05);
 }
 
 .role-checkbox:checked + .role-checkbox-label {
-    background: rgba(212, 175, 55, 0.2);
+    background: rgba(212, 175, 55, 0.15);
     border-color: var(--gold);
     color: var(--gold);
 }
@@ -596,112 +834,201 @@
     border-radius: 50%;
 }
 
-/* Form Group */
+/* Form Groups */
 .form-group {
-    margin-bottom: 1rem;
+    margin-bottom: 20px;
+}
+
+.form-group:last-child {
+    margin-bottom: 0;
 }
 
 .form-group label {
     display: block;
-    font-weight: 500;
-    color: var(--white);
-    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 8px;
+    font-size: 14px;
 }
 
-.form-group input[type="text"] {
+.form-group input[type="text"],
+.form-group input[type="email"],
+.form-group textarea {
     width: 100%;
-    padding: 0.75rem 1rem;
+    padding: 12px 16px;
     background: rgba(0, 0, 0, 0.3);
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    color: var(--white);
-    font-size: 0.95rem;
+    border: 1px solid var(--admin-border);
+    border-radius: 10px;
+    color: var(--text);
+    font-size: 14px;
+    transition: all 0.2s ease;
 }
 
-.form-group input:focus {
+.form-group input:focus,
+.form-group textarea:focus {
     outline: none;
     border-color: var(--gold);
+    background: rgba(0, 0, 0, 0.4);
 }
 
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+    color: var(--text-muted);
+}
+
+/* Checkbox Group */
 .checkbox-group {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 12px;
 }
 
 .checkbox-label {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    color: var(--text-muted);
+    gap: 12px;
+    color: var(--text);
     cursor: pointer;
+    font-size: 14px;
 }
 
 .checkbox-label input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
+    width: 20px;
+    height: 20px;
     accent-color: var(--gold);
+    cursor: pointer;
 }
 
+/* Form Actions */
 .form-actions {
     display: flex;
     justify-content: flex-end;
-    gap: 0.75rem;
-    margin-top: 1.5rem;
+    gap: 12px;
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid var(--admin-border);
 }
 
-/* Footer */
+/* Buttons */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 24px;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--gold), #b8860b);
+    color: #000;
+}
+
+.btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 20px rgba(212, 175, 55, 0.3);
+}
+
+.btn-secondary {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--admin-border);
+    color: var(--text);
+}
+
+.btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.btn-ghost {
+    background: transparent;
+    color: var(--text-muted);
+    padding: 12px 20px;
+}
+
+.btn-ghost:hover {
+    color: var(--text);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+/* ===================================
+   Empty State
+   =================================== */
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    text-align: center;
+}
+
+.empty-state svg {
+    width: 48px;
+    height: 48px;
+    color: var(--text-muted);
+    opacity: 0.5;
+    margin-bottom: 16px;
+}
+
+.empty-state p {
+    color: var(--text-muted);
+    font-size: 14px;
+}
+
+/* ===================================
+   Footer
+   =================================== */
 #adminFooter {
     margin-top: auto;
+    background: var(--dark);
+    border-top: 1px solid var(--admin-border);
 }
 
-/* Responsive */
-@media (max-width: 900px) {
-    .admin-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .admin-sidebar {
-        position: static;
-    }
-
-    .admin-nav {
-        flex-direction: row;
-        flex-wrap: wrap;
-    }
-
-    .admin-nav-item {
-        flex: 1;
-        min-width: 150px;
-        justify-content: center;
-    }
-}
-
-@media (max-width: 600px) {
+/* ===================================
+   Responsive
+   =================================== */
+@media (max-width: 768px) {
     .admin-header {
-        padding: 5rem 0 1.5rem;
+        padding: 90px 0 24px;
     }
 
     .header-left h1 {
-        font-size: 1.5rem;
+        font-size: 28px;
+        letter-spacing: 2px;
     }
 
-    .admin-panel {
-        padding: 1rem;
+    .admin-tabs .container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
     }
 
-    .permission-header {
+    .admin-tab {
+        padding: 14px 16px;
+        white-space: nowrap;
+    }
+
+    .permissions-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .permission-card-header {
         flex-direction: column;
-        gap: 0.75rem;
+        align-items: flex-start;
+        gap: 12px;
     }
 
     .role-group {
-        flex-direction: column;
-        gap: 0.25rem;
+        gap: 6px;
     }
 
-    .role-label {
-        min-width: auto;
+    .roles-grid {
+        grid-template-columns: 1fr;
     }
 
     .add-admin-form {
@@ -709,7 +1036,16 @@
     }
 
     .modal-content {
-        width: 95%;
-        margin: 1rem;
+        margin: 16px;
+        max-height: 90vh;
+    }
+
+    .modal-body {
+        padding: 20px;
+    }
+
+    .modal-header,
+    .modal-footer {
+        padding: 16px 20px;
     }
 }
