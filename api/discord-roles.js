@@ -32,10 +32,17 @@ module.exports = async function handler(req, res) {
         });
 
         if (!memberResponse.ok) {
+            const errorText = await memberResponse.text();
+            console.error('Discord API error:', memberResponse.status, errorText);
             if (memberResponse.status === 401) {
                 return res.status(401).json({ error: 'Token expired or invalid' });
             }
-            return res.status(404).json({ error: 'User not in guild or no access' });
+            // Return the actual status code from Discord for better debugging
+            return res.status(memberResponse.status).json({
+                error: 'Discord API error',
+                status: memberResponse.status,
+                details: errorText
+            });
         }
 
         const member = await memberResponse.json();
