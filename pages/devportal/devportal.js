@@ -235,32 +235,43 @@ async function loadTeamMembers() {
     const teamList = document.getElementById('teamList');
     teamList.innerHTML = '<div class="loading-small">Loading team...</div>';
 
+    // Start with current user
+    teamMembers = [{
+        id: currentUser.id,
+        username: currentUser.displayName || currentUser.username,
+        avatar: currentUser.avatar,
+        canApprove: canApprove
+    }];
+
     try {
         // Fetch all members with dev roles
         const roleIdsParam = DEV_ROLE_IDS.join(',');
+        console.log('Fetching dev team with roles:', roleIdsParam);
         const response = await fetch(`${API_URL}/discord-dev-team?roles=${roleIdsParam}`);
+        console.log('Dev team response status:', response.status);
 
         if (response.ok) {
             const data = await response.json();
-            teamMembers = data.members.map(member => ({
-                id: member.id,
-                username: member.displayName || member.username,
-                avatar: member.avatar,
-                canApprove: APPROVE_ROLE_IDS.some(roleId => member.roles?.includes(roleId))
-            }));
+            console.log('Dev team members found:', data.members?.length || 0);
+
+            if (data.members && data.members.length > 0) {
+                // Map fetched members, excluding current user (already added)
+                const fetchedMembers = data.members
+                    .filter(member => member.id !== currentUser.id)
+                    .map(member => ({
+                        id: member.id,
+                        username: member.displayName || member.username,
+                        avatar: member.avatar,
+                        canApprove: APPROVE_ROLE_IDS.some(roleId => member.roles?.includes(roleId))
+                    }));
+                teamMembers = [...teamMembers, ...fetchedMembers];
+            }
+        } else {
+            const errorData = await response.text();
+            console.error('Dev team API error:', response.status, errorData);
         }
     } catch (error) {
         console.error('Failed to load team members:', error);
-    }
-
-    // Ensure current user is in the list
-    if (!teamMembers.find(m => m.id === currentUser.id)) {
-        teamMembers.unshift({
-            id: currentUser.id,
-            username: currentUser.displayName || currentUser.username,
-            avatar: currentUser.avatar,
-            canApprove: canApprove
-        });
     }
 
     renderTeamList();
