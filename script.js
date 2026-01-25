@@ -138,12 +138,17 @@ async function updateNavAuth() {
         // Check permissions from Firestore for dynamic nav items
         try {
             const permResponse = await fetch(`https://firestore.googleapis.com/v1/projects/floridastaterp-1b9c2/databases/(default)/documents/permissions/pages`);
+            console.log('=== NAV PERMISSIONS DEBUG ===');
+            console.log('User roles:', userRoles);
             if (permResponse.ok) {
                 const permData = await permResponse.json();
+                console.log('Firestore permData:', permData);
                 if (permData.fields) {
                     // Check devportal access
                     const devportalAccess = permData.fields?.devportal?.mapValue?.fields?.permissions?.mapValue?.fields?.access?.arrayValue?.values || [];
                     const devRoleIds = devportalAccess.map(v => v.stringValue);
+                    console.log('DevPortal role IDs from Firestore:', devRoleIds);
+                    console.log('User has devportal access:', userRoles.some(roleId => devRoleIds.includes(roleId)));
                     isDev = userRoles.some(roleId => devRoleIds.includes(roleId));
 
                     // Check admin access
