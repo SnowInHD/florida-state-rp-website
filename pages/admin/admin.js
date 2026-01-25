@@ -112,7 +112,16 @@ async function checkAdminAccess() {
     let token = localStorage.getItem('discord_token');
     const user = JSON.parse(localStorage.getItem('discord_user') || 'null');
 
+    console.log('=== ADMIN ACCESS DEBUG ===');
+    console.log('Token exists:', !!token);
+    console.log('User object:', user);
+    console.log('User ID:', user?.id);
+    console.log('User ID type:', typeof user?.id);
+    console.log('Bypass IDs:', ADMIN_BYPASS_IDS);
+    console.log('ID match check:', ADMIN_BYPASS_IDS.includes(user?.id));
+
     if (!token || !user) {
+        console.log('No token or user - redirecting to login');
         window.location.href = '/api/discord-login?redirect=true';
         return false;
     }
@@ -121,21 +130,29 @@ async function checkAdminAccess() {
 
     // Check if user has admin bypass
     if (ADMIN_BYPASS_IDS.includes(user.id)) {
+        console.log('BYPASS GRANTED - user ID matches bypass list');
         return true;
     }
+    console.log('Bypass check FAILED - checking Firestore...');
 
     // Load admin users from Firestore and check if user is in admin list
     try {
+        console.log('Checking Firestore adminUsers...');
         const adminsDoc = await getDoc(doc(db, 'permissions', 'adminUsers'));
+        console.log('Firestore doc exists:', adminsDoc.exists());
         if (adminsDoc.exists()) {
             adminUsers = adminsDoc.data().users || [];
+            console.log('Admin users from Firestore:', adminUsers);
+            console.log('User in admin list:', adminUsers.includes(user.id));
             if (adminUsers.includes(user.id)) {
+                console.log('ACCESS GRANTED via Firestore admin list');
                 return true;
             }
         }
     } catch (error) {
         console.error('Error loading admin users:', error);
     }
+    console.log('Firestore admin check failed - checking role-based access...');
 
     // Check role-based access
     try {
