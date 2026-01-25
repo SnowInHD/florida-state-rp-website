@@ -232,17 +232,36 @@ async function loadGuildRoles() {
 }
 
 async function loadTeamMembers() {
-    // For now, we'll populate team members from tasks
-    // In a full implementation, you'd fetch all guild members with dev roles
     const teamList = document.getElementById('teamList');
+    teamList.innerHTML = '<div class="loading-small">Loading team...</div>';
 
-    // Add current user to team
-    teamMembers = [{
-        id: currentUser.id,
-        username: currentUser.displayName || currentUser.username,
-        avatar: currentUser.avatar,
-        canApprove: canApprove
-    }];
+    try {
+        // Fetch all members with dev roles
+        const roleIdsParam = DEV_ROLE_IDS.join(',');
+        const response = await fetch(`${API_URL}/discord-dev-team?roles=${roleIdsParam}`);
+
+        if (response.ok) {
+            const data = await response.json();
+            teamMembers = data.members.map(member => ({
+                id: member.id,
+                username: member.displayName || member.username,
+                avatar: member.avatar,
+                canApprove: APPROVE_ROLE_IDS.some(roleId => member.roles?.includes(roleId))
+            }));
+        }
+    } catch (error) {
+        console.error('Failed to load team members:', error);
+    }
+
+    // Ensure current user is in the list
+    if (!teamMembers.find(m => m.id === currentUser.id)) {
+        teamMembers.unshift({
+            id: currentUser.id,
+            username: currentUser.displayName || currentUser.username,
+            avatar: currentUser.avatar,
+            canApprove: canApprove
+        });
+    }
 
     renderTeamList();
     populateAssigneeDropdowns();

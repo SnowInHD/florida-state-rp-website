@@ -215,16 +215,30 @@
 .filter-select {
     width: 100%;
     padding: 8px 10px;
-    background: rgba(255, 255, 255, 0.05);
+    background: #1a1a1a;
     border: 1px solid rgba(212, 165, 116, 0.2);
     border-radius: 6px;
     color: var(--text);
     font-size: 13px;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23d4a574' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    padding-right: 30px;
 }
 
 .filter-select:focus {
     outline: none;
     border-color: var(--gold);
+}
+
+.filter-select option {
+    background: #1a1a1a;
+    color: var(--text);
+    padding: 8px;
 }
 
 /* Kanban Board */
@@ -474,12 +488,29 @@
 .form-group select {
     width: 100%;
     padding: 10px 12px;
-    background: rgba(255, 255, 255, 0.05);
+    background: #1a1a1a;
     border: 1px solid rgba(212, 165, 116, 0.2);
     border-radius: 6px;
     color: var(--text);
     font-size: 14px;
     font-family: var(--font-body);
+}
+
+.form-group select {
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23d4a574' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 35px;
+}
+
+.form-group select option {
+    background: #1a1a1a;
+    color: var(--text);
+    padding: 10px;
 }
 
 .form-group input:focus,
@@ -717,17 +748,30 @@
 
 .action-select {
     padding: 8px 12px;
-    background: rgba(255, 255, 255, 0.05);
+    background: #1a1a1a;
     border: 1px solid rgba(212, 165, 116, 0.2);
     border-radius: 6px;
     color: var(--text);
     font-size: 13px;
     cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23d4a574' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    padding-right: 30px;
 }
 
 .action-select:focus {
     outline: none;
     border-color: var(--gold);
+}
+
+.action-select option {
+    background: #1a1a1a;
+    color: var(--text);
+    padding: 8px;
 }
 
 /* Review Notes */
