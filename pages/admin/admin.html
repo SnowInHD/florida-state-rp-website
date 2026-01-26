@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/png" href="../../assets/images/FSRP.png">
+    <link rel="icon" type="image/png" href="/assets/images/FSRP.png">
     <title>Admin Panel - Florida State RP</title>
-    <link rel="stylesheet" href="../../styles.css">
-    <link rel="stylesheet" href="admin.css">
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="/pages/admin/admin.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -16,8 +16,8 @@
     <nav class="navbar scrolled" id="navbar">
         <div class="nav-container">
             <div class="nav-logo">
-                <a href="../../index.html">
-                    <img src="../../assets/images/FSRP.png" alt="Florida State RP Logo" class="logo-img">
+                <a href="/">
+                    <img src="/assets/images/FSRP.png" alt="Florida State RP Logo" class="logo-img">
                 </a>
             </div>
             <div class="nav-toggle" id="navToggle">
@@ -26,10 +26,10 @@
                 <span></span>
             </div>
             <ul class="nav-menu" id="navMenu">
-                <li class="nav-item"><a href="../../index.html" class="nav-link">Home</a></li>
-                <li class="nav-item"><a href="../../index.html#about" class="nav-link">About</a></li>
-                <li class="nav-item"><a href="../../index.html#departments" class="nav-link">Departments</a></li>
-                <li class="nav-item"><a href="../crashbot/crashbot.html" class="nav-link">CrashBot</a></li>
+                <li class="nav-item"><a href="/" class="nav-link">Home</a></li>
+                <li class="nav-item"><a href="/#about" class="nav-link">About</a></li>
+                <li class="nav-item"><a href="/#departments" class="nav-link">Departments</a></li>
+                <li class="nav-item"><a href="/crashbot" class="nav-link">CrashBot</a></li>
                 <li id="navAuth">
                     <a href="/api/discord-login?redirect=true" class="nav-link nav-login">Login</a>
                 </li>
@@ -49,7 +49,7 @@
             <h1>Access Denied</h1>
             <p>You don't have permission to access the Admin Panel.</p>
             <p class="access-note">This page is restricted to server administrators.</p>
-            <a href="../../index.html" class="btn btn-primary">Back to Home</a>
+            <a href="/" class="btn btn-primary">Back to Home</a>
         </div>
     </div>
 
@@ -311,7 +311,7 @@
         <div class="container">
             <div class="footer-content">
                 <div class="footer-logo">
-                    <img src="../../assets/images/FSRP.png" alt="Florida State RP Logo">
+                    <img src="/assets/images/FSRP.png" alt="Florida State RP Logo">
                 </div>
                 <div class="footer-text">
                     <p>&copy; 2026 Florida State RP. All rights reserved.</p>
@@ -320,7 +320,7 @@
         </div>
     </footer>
 
-    <script type="module" src="admin.js"></script>
-    <script src="../../script.js"></script>
+    <script type="module" src="/pages/admin/admin.js"></script>
+    <script src="/script.js"></script>
 </body>
 </html>

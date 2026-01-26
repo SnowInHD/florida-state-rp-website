@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/png" href="../../assets/images/FSRP.png">
+    <link rel="icon" type="image/png" href="/assets/images/FSRP.png">
     <title>Settings - Florida State RP</title>
-    <link rel="stylesheet" href="../../styles.css">
+    <link rel="stylesheet" href="/styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -336,8 +336,8 @@
     <nav class="navbar scrolled" id="navbar">
         <div class="nav-container">
             <div class="nav-logo">
-                <a href="../../index.html">
-                    <img src="../../assets/images/FSRP.png" alt="Florida State RP Logo" class="logo-img">
+                <a href="/">
+                    <img src="/assets/images/FSRP.png" alt="Florida State RP Logo" class="logo-img">
                 </a>
             </div>
             <div class="nav-toggle" id="navToggle">
@@ -346,10 +346,10 @@
                 <span></span>
             </div>
             <ul class="nav-menu" id="navMenu">
-                <li class="nav-item"><a href="../../index.html" class="nav-link">Home</a></li>
-                <li class="nav-item"><a href="../../index.html#about" class="nav-link">About</a></li>
-                <li class="nav-item"><a href="../../index.html#departments" class="nav-link">Departments</a></li>
-                <li class="nav-item"><a href="../crashbot/crashbot.html" class="nav-link">CrashBot</a></li>
+                <li class="nav-item"><a href="/" class="nav-link">Home</a></li>
+                <li class="nav-item"><a href="/#about" class="nav-link">About</a></li>
+                <li class="nav-item"><a href="/#departments" class="nav-link">Departments</a></li>
+                <li class="nav-item"><a href="/crashbot" class="nav-link">CrashBot</a></li>
                 <li id="navAuth">
                     <a href="/api/discord-login?redirect=true" class="nav-link nav-login">Login</a>
                 </li>
@@ -427,7 +427,7 @@
                     </div>
                     <div class="panel-content">
                         <div class="quick-links">
-                            <a href="../crashbot/crashbot.html" class="quick-link">
+                            <a href="/crashbot" class="quick-link">
                                 <div class="link-icon">
                                     <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><circle cx="9" cy="9" r="1"/><circle cx="15" cy="9" r="1"/></svg>
                                 </div>
@@ -436,7 +436,7 @@
                                     <p>Analyze crash logs</p>
                                 </div>
                             </a>
-                            <a href="../../index.html#departments" class="quick-link">
+                            <a href="/#departments" class="quick-link">
                                 <div class="link-icon">
                                     <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                                 </div>
@@ -454,7 +454,7 @@
                                     <p>Join server</p>
                                 </div>
                             </a>
-                            <a href="../../index.html" class="quick-link">
+                            <a href="/" class="quick-link">
                                 <div class="link-icon">
                                     <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>
                                 </div>
@@ -475,7 +475,7 @@
         <div class="container">
             <div class="footer-content">
                 <div class="footer-logo">
-                    <img src="../../assets/images/FSRP.png" alt="Florida State RP Logo">
+                    <img src="/assets/images/FSRP.png" alt="Florida State RP Logo">
                 </div>
                 <div class="footer-text">
                     <p>&copy; 2026 Florida State RP. All rights reserved.</p>
@@ -547,7 +547,7 @@
             localStorage.removeItem('discord_user');
             localStorage.removeItem('discord_roles');
             localStorage.removeItem('discord_in_guild');
-            window.location.href = '../../index.html';
+            window.location.href = '/';
         }
 
         // Populate profile
@@ -690,6 +690,6 @@
         populateProfile();
         loadRoles();
     </script>
-    <script src="../../script.js"></script>
+    <script src="/script.js"></script>
 </body>
 </html>

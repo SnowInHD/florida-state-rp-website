@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/png" href="../assets/images/FSRP.png">
+    <link rel="icon" type="image/png" href="/assets/images/FSRP.png">
     <title>Authenticating... - Florida State RP</title>
-    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="/styles.css">
     <style>
         .callback-page {
             min-height: 100vh;
@@ -92,7 +92,7 @@
 
                     // Redirect to home page
                     setTimeout(() => {
-                        window.location.href = '../index.html';
+                        window.location.href = '/';
                     }, 1000);
                 } else {
                     showError(data.error || 'Authentication failed.');

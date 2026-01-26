@@ -30,6 +30,12 @@ body {
     background: var(--dark);
     color: var(--text);
     line-height: 1.6;
+    caret-color: transparent;
+}
+
+/* Only show caret in actual input fields */
+input, textarea, [contenteditable="true"] {
+    caret-color: var(--gold);
 }
 
 .container {

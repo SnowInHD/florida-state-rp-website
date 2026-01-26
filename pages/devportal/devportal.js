@@ -38,6 +38,7 @@ let currentUser = null;
 let userRoles = [];
 let canApprove = false;
 let canAssign = false;
+let isAdmin = false;
 let tasks = [];
 let teamMembers = [];
 let selectedTask = null;
@@ -141,8 +142,8 @@ async function checkAccess() {
         }
 
         // Check if user is an admin (bypass ID or admin role)
-        const isAdmin = ADMIN_BYPASS_IDS.includes(currentUser.id) ||
-                        userRoles.some(roleId => ADMIN_ROLE_IDS.includes(roleId));
+        isAdmin = ADMIN_BYPASS_IDS.includes(currentUser.id) ||
+                  userRoles.some(roleId => ADMIN_ROLE_IDS.includes(roleId));
         console.log('Is admin:', isAdmin);
 
         // Check if user has access role OR is an admin
@@ -496,6 +497,13 @@ function renderKanbanBoard() {
         filteredTasks = filteredTasks.filter(t => t.priority === filterPriority);
     }
 
+    // Sort tasks by order field (lower order = higher in list)
+    filteredTasks.sort((a, b) => {
+        const orderA = a.order ?? Infinity;
+        const orderB = b.order ?? Infinity;
+        return orderA - orderB;
+    });
+
     // Render tasks
     filteredTasks.forEach(task => {
         const status = task.status || 'todo';
@@ -560,6 +568,7 @@ function createTaskCard(task) {
             ${workType ? `<span class="work-type-badge-small ${workType}">${getWorkTypeLabel(workType)}</span>` : '<span></span>'}
         </div>
         <div class="task-title">${escapeHtml(task.title)}</div>
+        ${task.description ? `<div class="task-description-snippet">${escapeHtml(task.description.substring(0, 80))}${task.description.length > 80 ? '...' : ''}</div>` : ''}
         <div class="task-meta">
             ${assigneesHtml}
             <div class="task-info">
@@ -590,14 +599,25 @@ function createTaskCard(task) {
 
 function getWorkTypeLabel(workType) {
     const labels = {
-        script: 'Script',
-        optimization: 'Optimization',
-        mlo_texture: 'MLO Texture',
-        vehicle_texture: 'Vehicle Texture',
-        vehicle_handling: 'Vehicle Handling',
-        bug_fix: 'Bug Fix',
+        // Script
+        script_add: 'Script: Add',
+        script_remove: 'Script: Remove',
+        script_optimization: 'Script: Optimization',
+        script_fix: 'Script: Fix',
+        // Map
+        map_add: 'Map: Add',
+        map_remove: 'Map: Remove',
+        map_texture: 'Map: Texture',
+        map_fix: 'Map: Fix',
+        // Vehicle
+        vehicle_add: 'Vehicle: Add',
+        vehicle_remove: 'Vehicle: Remove',
+        vehicle_handling: 'Vehicle: Handling',
+        vehicle_texture: 'Vehicle: Texture',
+        vehicle_fix: 'Vehicle: Fix',
+        // Other categories
         ui_ux: 'UI/UX',
-        documentation: 'Docs',
+        documentation: 'Documentation',
         other: 'Other'
     };
     return labels[workType] || workType;
@@ -649,25 +669,63 @@ function handleDragEnd(e) {
     document.querySelectorAll('.column-tasks').forEach(col => {
         col.classList.remove('drag-over');
     });
+    // Remove drop indicators
+    document.querySelectorAll('.drop-indicator').forEach(ind => ind.remove());
 }
 
 function handleDragOver(e) {
     e.preventDefault();
-    e.currentTarget.classList.add('drag-over');
+    const column = e.currentTarget;
+    column.classList.add('drag-over');
+
+    // Remove existing drop indicators
+    document.querySelectorAll('.drop-indicator').forEach(ind => ind.remove());
+
+    // Find the card we're hovering over
+    const afterElement = getDropPosition(column, e.clientY);
+
+    // Add drop indicator
+    const indicator = document.createElement('div');
+    indicator.className = 'drop-indicator';
+
+    if (afterElement) {
+        afterElement.parentNode.insertBefore(indicator, afterElement);
+    } else {
+        column.appendChild(indicator);
+    }
+}
+
+function getDropPosition(container, y) {
+    const cards = [...container.querySelectorAll('.task-card:not(.dragging)')];
+
+    for (const card of cards) {
+        const box = card.getBoundingClientRect();
+        const offset = y - box.top - box.height / 2;
+        if (offset < 0) {
+            return card;
+        }
+    }
+    return null;
 }
 
 function handleDragLeave(e) {
-    e.currentTarget.classList.remove('drag-over');
+    // Only remove if actually leaving the column
+    if (!e.currentTarget.contains(e.relatedTarget)) {
+        e.currentTarget.classList.remove('drag-over');
+        document.querySelectorAll('.drop-indicator').forEach(ind => ind.remove());
+    }
 }
 
 async function handleDrop(e) {
     e.preventDefault();
     e.currentTarget.classList.remove('drag-over');
+    document.querySelectorAll('.drop-indicator').forEach(ind => ind.remove());
 
     if (!draggedTask) return;
 
     const taskId = draggedTask.dataset.taskId;
-    const newStatus = e.currentTarget.closest('.kanban-column').dataset.status;
+    const column = e.currentTarget;
+    const newStatus = column.closest('.kanban-column').dataset.status;
 
     // Don't allow non-head devs to approve (move to completed from review)
     const task = tasks.find(t => t.id === taskId);
@@ -676,13 +734,52 @@ async function handleDrop(e) {
         return;
     }
 
+    // Calculate new order based on drop position
+    const afterElement = getDropPosition(column, e.clientY);
+    const cards = [...column.querySelectorAll('.task-card:not(.dragging)')];
+
+    let newOrder;
+    if (cards.length === 0) {
+        newOrder = 1000;
+    } else if (!afterElement) {
+        // Dropped at the end
+        const lastCard = cards[cards.length - 1];
+        const lastTask = tasks.find(t => t.id === lastCard.dataset.taskId);
+        newOrder = (lastTask?.order ?? 1000) + 1000;
+    } else {
+        // Dropped before afterElement
+        const afterIndex = cards.indexOf(afterElement);
+        const afterTask = tasks.find(t => t.id === afterElement.dataset.taskId);
+        const afterOrder = afterTask?.order ?? 1000;
+
+        if (afterIndex === 0) {
+            // Dropped at the beginning
+            newOrder = afterOrder / 2;
+        } else {
+            // Dropped between two cards
+            const beforeCard = cards[afterIndex - 1];
+            const beforeTask = tasks.find(t => t.id === beforeCard.dataset.taskId);
+            const beforeOrder = beforeTask?.order ?? 0;
+            newOrder = (beforeOrder + afterOrder) / 2;
+        }
+    }
+
+    // Update local task immediately for instant UI feedback
+    if (task) {
+        task.status = newStatus;
+        task.order = newOrder;
+        renderKanbanBoard();
+    }
+
     try {
         await updateDoc(doc(db, 'devTasks', taskId), {
             status: newStatus,
+            order: newOrder,
             updatedAt: serverTimestamp()
         });
     } catch (error) {
-        console.error('Error updating task status:', error);
+        console.error('Error updating task:', error);
+        // Revert local change on error - Firestore listener will sync correct state
     }
 }
 
@@ -840,8 +937,8 @@ async function loadComments(taskId) {
         }
 
         commentsList.innerHTML = '';
-        snapshot.forEach(doc => {
-            const comment = doc.data();
+        snapshot.forEach(docSnap => {
+            const comment = { id: docSnap.id, ...docSnap.data() };
             commentsList.appendChild(createCommentElement(comment));
         });
 
@@ -861,6 +958,10 @@ function createCommentElement(comment) {
     const date = comment.createdAt?.toDate ? comment.createdAt.toDate() : new Date();
     const timeAgo = getTimeAgo(date);
 
+    // Check if user can delete this comment (own comment, admin, or canAssign)
+    const isOwnComment = comment.author?.id === currentUser?.id;
+    const canDeleteComment = isOwnComment || isAdmin || canAssign;
+
     div.innerHTML = `
         <div class="comment-avatar">
             ${comment.author?.avatar
@@ -872,6 +973,14 @@ function createCommentElement(comment) {
             <div class="comment-header">
                 <span class="comment-author">${comment.author?.username || 'Unknown'}</span>
                 <span class="comment-time">${timeAgo}</span>
+                ${canDeleteComment ? `
+                    <button class="comment-delete-btn" onclick="deleteComment('${comment.id}')" title="Delete comment">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="3 6 5 6 21 6"/>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                        </svg>
+                    </button>
+                ` : ''}
             </div>
             <div class="comment-content">${escapeHtml(comment.content)}</div>
         </div>
@@ -913,6 +1022,28 @@ async function addComment() {
         alert('Failed to add comment.');
     }
 }
+
+// Delete comment
+window.deleteComment = async function(commentId) {
+    if (!selectedTask || !commentId) return;
+
+    try {
+        await deleteDoc(doc(db, 'devTaskComments', commentId));
+
+        // Update comment count on task
+        const newCount = Math.max((selectedTask.commentCount || 1) - 1, 0);
+        await updateDoc(doc(db, 'devTasks', selectedTask.id), {
+            commentCount: newCount
+        });
+
+        // Reload comments
+        await loadComments(selectedTask.id);
+
+    } catch (error) {
+        console.error('Error deleting comment:', error);
+        alert('Failed to delete comment.');
+    }
+};
 
 // ===================================
 // Attachments
@@ -1047,12 +1178,17 @@ async function uploadAttachment(file) {
 // ===================================
 async function createTask(data) {
     try {
+        // Find the highest order in todo column to place new task at bottom
+        const todoTasks = tasks.filter(t => t.status === 'todo');
+        const maxOrder = todoTasks.reduce((max, t) => Math.max(max, t.order ?? 0), 0);
+
         const taskData = {
             title: data.title,
             description: data.description || '',
             status: 'todo',
             priority: data.priority || 'medium',
             workType: data.workType || '',
+            order: maxOrder + 1000,
             createdBy: {
                 id: currentUser.id,
                 username: currentUser.displayName || currentUser.username,
@@ -1320,6 +1456,108 @@ function setupEventListeners() {
         document.getElementById('editAssigneesModal').hidden = true;
         openTaskDetail(selectedTask.id);
     });
+
+    // Edit Title
+    document.getElementById('editTitleBtn').addEventListener('click', () => {
+        if (!selectedTask) return;
+        const titleEl = document.getElementById('detailTitle');
+        const inputEl = document.getElementById('detailTitleInput');
+
+        inputEl.value = selectedTask.title;
+        titleEl.hidden = true;
+        inputEl.hidden = false;
+        inputEl.focus();
+        inputEl.select();
+    });
+
+    document.getElementById('detailTitleInput').addEventListener('blur', saveTitle);
+    document.getElementById('detailTitleInput').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            saveTitle();
+        }
+        if (e.key === 'Escape') {
+            cancelTitleEdit();
+        }
+    });
+
+    async function saveTitle() {
+        if (!selectedTask) return;
+        const inputEl = document.getElementById('detailTitleInput');
+        const titleEl = document.getElementById('detailTitle');
+        const newTitle = inputEl.value.trim();
+
+        if (newTitle && newTitle !== selectedTask.title) {
+            try {
+                await updateDoc(doc(db, 'devTasks', selectedTask.id), {
+                    title: newTitle,
+                    updatedAt: serverTimestamp()
+                });
+            } catch (error) {
+                console.error('Error updating title:', error);
+            }
+        }
+
+        titleEl.textContent = newTitle || selectedTask.title;
+        titleEl.hidden = false;
+        inputEl.hidden = true;
+    }
+
+    function cancelTitleEdit() {
+        const titleEl = document.getElementById('detailTitle');
+        const inputEl = document.getElementById('detailTitleInput');
+        titleEl.hidden = false;
+        inputEl.hidden = true;
+    }
+
+    // Edit Description
+    document.getElementById('editDescriptionBtn').addEventListener('click', () => {
+        if (!selectedTask) return;
+        const descEl = document.getElementById('detailDescription');
+        const inputEl = document.getElementById('detailDescriptionInput');
+
+        inputEl.value = selectedTask.description || '';
+        descEl.hidden = true;
+        inputEl.hidden = false;
+        inputEl.focus();
+    });
+
+    document.getElementById('detailDescriptionInput').addEventListener('blur', saveDescription);
+    document.getElementById('detailDescriptionInput').addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            cancelDescriptionEdit();
+        }
+    });
+
+    async function saveDescription() {
+        if (!selectedTask) return;
+        const inputEl = document.getElementById('detailDescriptionInput');
+        const descEl = document.getElementById('detailDescription');
+        const newDesc = inputEl.value.trim();
+
+        if (newDesc !== (selectedTask.description || '')) {
+            try {
+                await updateDoc(doc(db, 'devTasks', selectedTask.id), {
+                    description: newDesc,
+                    updatedAt: serverTimestamp()
+                });
+                selectedTask.description = newDesc;
+            } catch (error) {
+                console.error('Error updating description:', error);
+            }
+        }
+
+        descEl.textContent = newDesc || 'No description provided.';
+        descEl.hidden = false;
+        inputEl.hidden = true;
+    }
+
+    function cancelDescriptionEdit() {
+        const descEl = document.getElementById('detailDescription');
+        const inputEl = document.getElementById('detailDescriptionInput');
+        descEl.hidden = false;
+        inputEl.hidden = true;
+    }
 
     // Change Priority
     document.getElementById('changePriority').addEventListener('change', async (e) => {
