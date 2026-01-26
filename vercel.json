@@ -1,6 +1,13 @@
 {
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
+  "rewrites": [
+    { "source": "/settings", "destination": "/pages/settings/settings.html" },
+    { "source": "/devportal", "destination": "/pages/devportal/devportal.html" },
+    { "source": "/admin", "destination": "/pages/admin/admin.html" },
+    { "source": "/crashbot", "destination": "/pages/crashbot/crashbot.html" },
+    { "source": "/callback", "destination": "/auth/callback.html" }
+  ],
   "headers": [
     {
       "source": "/api/(.*)",
